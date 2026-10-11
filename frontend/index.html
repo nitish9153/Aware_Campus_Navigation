@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AccessPath — Accessibility-Aware Campus Navigation. Step-free routing, elevator status updates, ramp preferences, and multi-criteria campus navigation.">
+  <title>AccessPath — Accessibility-Aware Campus Navigation</title>
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <!-- Accessible Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Screen Reader Live Region for Dynamic Route Updates -->
+  <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+
+  <div class="app-container">
+
+    <!-- Top Disclaimer & Status Banner -->
+    <aside class="disclaimer-banner" aria-label="Dataset notice">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="disclaimer-badge">Demo Dataset</span>
+        <span><strong>Oakridge Science &amp; Arts University Campus</strong> — Fictional dataset for accessibility simulation &amp; testing.</span>
+      </div>
+      <div class="banner-controls">
+        <button id="btn-reset-demo" class="btn-reset-demo" style="padding: 4px 10px; font-size: 0.75rem;" title="Reset all elevators and paths to default demo state">
+          🔄 Reset Demo
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main App Header -->
+    <header class="main-header" role="banner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">♿</div>
+        <div>
+          <h1 class="brand-title">AccessPath</h1>
+          <div class="brand-sub">Accessibility-Aware Campus Navigation</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav role="navigation" aria-label="Primary navigation">
+        <ul class="nav-tabs" role="tablist">
+          <li role="presentation">
+            <button class="nav-tab-btn" data-view="home" role="tab" aria-selected="false" id="tab-home">
+              <span>🏠</span> Home
+            </button>
+          </li>
+          <li role="presentation">
+            <button class="nav-tab-btn active" data-view="map" role="tab" aria-selected="true" id="tab-map">
+              <span>🗺️</span> Campus Map &amp; Navigator
+            </button>
+          </li>
+          <li role="presentation">
+            <button class="nav-tab-btn" data-view="sandbox" role="tab" aria-selected="false" id="tab-sandbox">
+              <span>⚡</span> Simulation Sandbox
+            </button>
+          </li>
+          <li role="presentation">
+            <button class="nav-tab-btn" data-view="admin" role="tab" aria-selected="false" id="tab-admin">
+              <span>⚙️</span> Admin Dashboard
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Header Utilities -->
+      <div class="header-actions">
+        <div id="navbar-elevator-status" class="elevator-health-pill operational" title="Real-time elevator network health">
+          <span class="health-dot"></span> Elevators Normal
+        </div>
+        <button id="btn-contrast-toggle" class="btn-toggle-contrast" aria-pressed="false" title="Toggle High Contrast Mode">
+          <span>👁️</span> High Contrast
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="main-content" class="main-content" role="main">
+
+      <!-- ==================================================================
+           SECTION 1: HOME
+           ================================================================== -->
+      <section id="view-home" class="view-section" aria-labelledby="tab-home">
+        <div class="home-container">
+          <div class="hero-card">
+            <span class="hero-tag">Inclusive Campus Mobility</span>
+            <h1>Navigate Campus Confidently With Step-Free, Adaptive Routes</h1>
+            <p>
+              AccessPath empowers students, wheelchair users, and visitors with real-time accessibility-aware routing. 
+              Our graph-based Dijkstra engine factors in stairs, ramps, slopes, and live elevator availability to 
+              ensure you never arrive at an impassable barrier.
+            </p>
+            <div class="hero-actions">
+              <button class="btn-primary-large" onclick="window.AccessPathApp.switchView('map')">
+                <span>🗺️</span> Open Campus Navigator
+              </button>
+              <button class="btn-secondary-large" onclick="window.AccessPathApp.switchView('sandbox')">
+                <span>⚡</span> Try Elevator Failure Simulator
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-section">
+            <h2>Featured Accessible Route Scenarios</h2>
+            <p style="color:var(--text-muted); font-size:0.92rem;">
+              Click any scenario to instantly plot and evaluate the accessibility route on the interactive campus map:
+            </p>
+            <div class="presets-grid">
+              <button class="preset-btn" onclick="window.AccessPathApp.selectPreset('N_GATE', 'N_INNOV_UPPER')">
+                <span class="preset-badge">Multi-Level Elevation</span>
+                <span class="preset-title">Visitor Gate → Innovation Hub Terrace</span>
+                <span class="preset-desc">Tests elevator transit vs 28-step monumental staircase vs outdoor switchback ramp.</span>
+              </button>
+
+              <button class="preset-btn" onclick="window.AccessPathApp.selectPreset('N_QUAD_SOUTH', 'N_ENG_MAIN')">
+                <span class="preset-badge">Stair Avoidance</span>
+                <span class="preset-title">Quad South → Science &amp; Engineering</span>
+                <span class="preset-desc">Bypasses central amphitheater stone stairs (14 steps) via the accessible perimeter boardwalk.</span>
+              </button>
+
+              <button class="preset-btn" onclick="window.AccessPathApp.selectPreset('N_TRANSIT', 'N_LIB_ACC')">
+                <span class="preset-badge">Zero Threshold</span>
+                <span class="preset-title">Shuttle Transit Hub → Library Accessible West</span>
+                <span class="preset-desc">Smooth concrete path with tactile paving leading to automated push-plate door entrance.</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Feature Cards -->
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon-wrapper green">♿</div>
+              <h2>Dijkstra Routing Engine</h2>
+              <p>Strictly filters out steps, steep slopes (>8%), and out-of-service elevators, finding optimal accessible pathways.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon-wrapper amber">🛗</div>
+              <h2>Dynamic Elevator Resilience</h2>
+              <p>When an elevator is out of service, active routes are immediately invalidated and alternative ramp detours are calculated.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon-wrapper blue">🛡️</div>
+              <h2>Verified vs Unverified Routes</h2>
+              <p>Transparently flags audited ADA pathways and warns users when only unverified or assistance-required paths exist.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon-wrapper purple">⚙️</div>
+              <h2>Admin &amp; Simulation Sandbox</h2>
+              <p>Facilities teams can block construction paths, trigger maintenance alerts, and test emergency detour configurations.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           SECTION 2: CAMPUS MAP & NAVIGATOR
+           ================================================================== -->
+      <section id="view-map" class="view-section active" aria-labelledby="tab-map">
+        <div class="navigator-layout">
+
+          <!-- Left Sidebar Controls -->
+          <aside class="nav-sidebar" aria-label="Route planning options">
+            <div class="sidebar-header">
+              <h2>Plan Your Route</h2>
+              <p>Select campus locations and customize accessibility preferences.</p>
+            </div>
+
+            <div class="sidebar-body">
+              <!-- Origin Selector -->
+              <div class="form-group">
+                <label for="select-origin" class="form-label">
+                  <span>📍 Starting Location</span>
+                </label>
+                <div class="select-wrapper">
+                  <select id="select-origin" class="form-select" aria-label="Starting Location"></select>
+                </div>
+              </div>
+
+              <!-- Swap Button -->
+              <button id="btn-swap-locations" class="swap-locations-btn" title="Swap Origin and Destination" aria-label="Swap starting location and destination">
+                ⇅
+              </button>
+
+              <!-- Destination Selector -->
+              <div class="form-group">
+                <label for="select-destination" class="form-label">
+                  <span>🎯 Destination</span>
+                </label>
+                <div class="select-wrapper">
+                  <select id="select-destination" class="form-select" aria-label="Destination"></select>
+                </div>
+              </div>
+
+              <!-- Accessibility Preferences Box -->
+              <div class="preferences-panel">
+                <div class="pref-header">
+                  <span>Accessibility Preferences</span>
+                  <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">Custom Filters</span>
+                </div>
+
+                <label class="checkbox-item">
+                  <input type="checkbox" id="pref-step-free-only" checked>
+                  <div class="checkbox-label">
+                    <strong>Step-free routes only</strong>
+                    <span>Strictly eliminates any paths containing stairs</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-item">
+                  <input type="checkbox" id="pref-avoid-stairs" checked>
+                  <div class="checkbox-label">
+                    <strong>Avoid stairs when possible</strong>
+                    <span>Applies heavy penalty to stairs in routing cost</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-item">
+                  <input type="checkbox" id="pref-prefer-ramps" checked>
+                  <div class="checkbox-label">
+                    <strong>Prefer accessible ramps</strong>
+                    <span>Prioritizes certified ramps with handrails</span>
+                  </div>
+                </label>
+
+                <label class="checkbox-item">
+                  <input type="checkbox" id="pref-avoid-broken-elevators" checked>
+                  <div class="checkbox-label">
+                    <strong>Exclude out-of-service elevators</strong>
+                    <span>Reroutes around broken lifts automatically</span>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Action Calculate Button -->
+              <div class="action-buttons">
+                <button id="btn-calculate-route" class="btn-route-calc">
+                  <span>🔍</span> Find Accessible Route
+                </button>
+              </div>
+
+              <!-- Live Elevator Simulation Quick Control -->
+              <div class="sim-quick-card">
+                <h4><span>⚡</span> Quick Outage Simulation</h4>
+                <p>Simulate an unexpected outage of Elevator E2 (Terrace Lift) to watch AccessPath dynamically recalculate the switchback ramp detour live.</p>
+                <button 
+                  class="btn-sim-toggle" 
+                  onclick="window.AccessPathApp.toggleElevatorStatus('E2', 'out_of_service')"
+                >
+                  Simulate Elevator E2 Breakdown
+                </button>
+              </div>
+
+              <!-- Route Details Panel (Dynamically populated) -->
+              <div id="route-details-panel" class="route-results-container" aria-live="polite">
+                <div class="route-summary-card" style="text-align: center; color: var(--text-muted);">
+                  <p>Select your starting location and destination above, then click <strong>Find Accessible Route</strong>.</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Right Interactive Map Viewport -->
+          <div class="map-viewport-wrapper">
+            <div id="campus-map" role="region" aria-label="Interactive Campus Map"></div>
+
+            <!-- Recenter Button -->
+            <button id="btn-recenter-map" class="map-recenter-btn" title="Recenter to Campus Overview">
+              <span>🎯</span> Recenter Campus
+            </button>
+
+            <!-- Map Legend -->
+            <div class="map-legend-card" aria-label="Map color legend">
+              <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 2px;">Map Legend</div>
+              <div class="legend-item">
+                <div class="legend-line route"></div>
+                <span>Calculated Route</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line accessible"></div>
+                <span>Step-Free Paved Path</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line ramp"></div>
+                <span>Accessible Ramp</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line stairs"></div>
+                <span>Staircase (Obstacle)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line blocked"></div>
+                <span>Blocked / Construction</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           SECTION 3: SIMULATION SANDBOX
+           ================================================================== -->
+      <section id="view-sandbox" class="view-section" aria-labelledby="tab-sandbox">
+        <div class="sandbox-container">
+          <div class="sandbox-header">
+            <h2>Live Resilience &amp; Fault Simulation Sandbox</h2>
+            <p style="color:var(--text-muted); margin-top:4px;">
+              Test how AccessPath's routing engine adapts in real-time when infrastructure fails or construction closures occur.
+            </p>
+          </div>
+
+          <div class="sandbox-grid">
+            <!-- Elevator Outage Simulation Card -->
+            <div class="sim-card">
+              <div class="sim-card-header">
+                <h3>🛗 Elevator Outage Simulation</h3>
+                <span class="status-badge operational">Real-Time Sync</span>
+              </div>
+              <p style="font-size:0.88rem; color:var(--text-muted);">
+                Toggle an elevator's operational state. When taken out of service, any active route relying on that elevator is invalidated, 
+                triggering an immediate alternative step-free reroute.
+              </p>
+              <div id="sandbox-elevators-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+
+            <!-- Path Blockage Simulation Card -->
+            <div class="sim-card">
+              <div class="sim-card-header">
+                <h3>🚧 Construction &amp; Obstacle Closure</h3>
+                <span class="status-badge maintenance">Obstacle Simulation</span>
+              </div>
+              <p style="font-size:0.88rem; color:var(--text-muted);">
+                Simulate temporary campus walkway maintenance (e.g. repaving the Quad North steps or closing the Gate promenade).
+              </p>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <button 
+                  class="btn-sim-toggle" 
+                  style="padding:10px;"
+                  onclick="window.AccessPathApp.toggleEdgeStatus('E_QUAD_CENTER_TO_QUAD_STAIRS', 'blocked')"
+                >
+                  Block Central Quad Stairs (Simulated Hazard)
+                </button>
+                <button 
+                  class="btn-sim-toggle" 
+                  style="padding:10px;"
+                  onclick="window.AccessPathApp.toggleEdgeStatus('E_GATE_TO_PLAZA', 'blocked')"
+                >
+                  Block Main Gate Promenade (Emergency Detour)
+                </button>
+                <button 
+                  class="btn-sim-toggle" 
+                  style="padding:10px; background:#f0fdf4; border-color:#86efac; color:#166534;"
+                  onclick="window.AccessPathApp.handleResetDemo()"
+                >
+                  Restore All Paths &amp; Elevators
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           SECTION 4: ADMIN DASHBOARD
+           ================================================================== -->
+      <section id="view-admin" class="view-section" aria-labelledby="tab-admin">
+        <div class="admin-container">
+          <div class="admin-header">
+            <div>
+              <h2>Campus Infrastructure &amp; Admin Dashboard</h2>
+              <p style="color:var(--text-muted); font-size:0.9rem;">
+                Manage campus buildings, verify accessible paths, and update elevator maintenance statuses.
+              </p>
+            </div>
+            <div class="admin-actions">
+              <button class="btn-reset-demo" onclick="window.AccessPathApp.handleResetDemo()">
+                <span>🔄</span> Reset All Demo Data
+              </button>
+            </div>
+          </div>
+
+          <!-- Elevators Management Table -->
+          <div class="admin-table-card">
+            <div class="admin-table-header">
+              <span>Elevator Equipment Status</span>
+              <span style="font-size:0.85rem; color:var(--text-muted);">2 Operational Units in Campus Demo</span>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Equipment Name &amp; Building</th>
+                    <th>Status</th>
+                    <th>Clearance</th>
+                    <th>Last Inspected</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-elevators-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Campus Path Network Table -->
+          <div class="admin-table-card">
+            <div class="admin-table-header">
+              <span>Campus Path Network Segments</span>
+              <span style="font-size:0.85rem; color:var(--text-muted);">Sample Graph Edges</span>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Edge ID</th>
+                    <th>Description</th>
+                    <th>Distance</th>
+                    <th>Stairs</th>
+                    <th>Path Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-edges-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Application JS Modules -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/map.js"></script>
+  <script src="/static/js/app.js"></script>
+
+</body>
+</html>
