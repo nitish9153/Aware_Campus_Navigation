@@ -14,6 +14,7 @@ export type RoomType =
   | 'Elevator'
   | 'Stairs'
   | 'Cafeteria / Mess'
+  | 'Dining Hall'
   | 'Administrative'
   | 'Hostel Room'
   | 'Other';

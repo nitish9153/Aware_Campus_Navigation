@@ -1,0 +1,888 @@
+{
+  "locations": [
+    {
+      "id": "main_gate",
+      "name": "Main Gate",
+      "code": "GATE_1",
+      "category": "Gate",
+      "description": "Northern main campus entrance gate linking directly to the NH-79 national highway, with 24/7 security kiosk, barrier control, and visitor registration.",
+      "lat": 25.032489,
+      "lng": 74.636014,
+      "color": "#0284c7",
+      "iconType": "gate",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Security Checkpost",
+        "Tactile Paved Pathway",
+        "Visitor Parking Area",
+        "Information Board"
+      ],
+      "entranceNodeId": "node_gate_1"
+    },
+    {
+      "id": "central_library",
+      "name": "Central Library",
+      "code": "LIB",
+      "category": "Library",
+      "description": "Maharana Pratap Central University Library with multi-level book stacks, reading rooms, digital reference lab, and quiet research zones.",
+      "lat": 25.031446,
+      "lng": 74.636461,
+      "color": "#8b5cf6",
+      "iconType": "book",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Level Ramp Entrance",
+        "Elevator to 1st Floor",
+        "Braille Reference Texts",
+        "Assistive Tech Stations"
+      ],
+      "entranceNodeId": "node_ent_library",
+      "buildingFootprint": [
+        [
+          25.031528,
+          74.636371
+        ],
+        [
+          25.031528,
+          74.63655
+        ],
+        [
+          25.031365,
+          74.63655
+        ],
+        [
+          25.031365,
+          74.636371
+        ]
+      ]
+    },
+    {
+      "id": "girls_hostel",
+      "name": "Girls Hostel",
+      "code": "GH",
+      "category": "Hostel",
+      "description": "Multi-story secure residential block for female students with 24/7 security, Wi-Fi, study lounges, and internal courtyard.",
+      "lat": 25.032286,
+      "lng": 74.636133,
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Level Ramp Entrance",
+        "Elevator Access",
+        "Accessible Restrooms",
+        "Security Desk"
+      ],
+      "entranceNodeId": "node_ent_girls_hostel",
+      "buildingFootprint": [
+        [
+          25.032353,
+          74.636059
+        ],
+        [
+          25.032353,
+          74.636208
+        ],
+        [
+          25.032218,
+          74.636208
+        ],
+        [
+          25.032218,
+          74.636059
+        ]
+      ]
+    },
+    {
+      "id": "hospital",
+      "name": "Hospital",
+      "code": "HOSP",
+      "category": "Medical",
+      "description": "Campus Medical & Emergency Healthcare Center offering outpatient care, first aid, medical checkups, and ambulance service.",
+      "lat": 25.032299,
+      "lng": 74.636371,
+      "color": "#ef4444",
+      "iconType": "cross",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Automated Sliding Doors",
+        "Emergency Ramp",
+        "Medical Wheelchairs",
+        "Pharmacy Counter"
+      ],
+      "entranceNodeId": "node_ent_hospital",
+      "buildingFootprint": [
+        [
+          25.032367,
+          74.636282
+        ],
+        [
+          25.032367,
+          74.636461
+        ],
+        [
+          25.032231,
+          74.636461
+        ],
+        [
+          25.032231,
+          74.636282
+        ]
+      ]
+    },
+    {
+      "id": "sanga_boys_hostel",
+      "name": "Sanga Boys Hostel",
+      "code": "SBH",
+      "category": "Hostel",
+      "description": "Premier student residence block named after Rana Sanga, featuring student study lounges and indoor recreation.",
+      "lat": 25.032326,
+      "lng": 74.636728,
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": false,
+      "facilities": [
+        "Ground Floor Accessible Rooms",
+        "Ramp Entry",
+        "Study Hall"
+      ],
+      "entranceNodeId": "node_ent_sanga",
+      "buildingFootprint": [
+        [
+          25.032394,
+          74.636639
+        ],
+        [
+          25.032394,
+          74.636817
+        ],
+        [
+          25.032259,
+          74.636817
+        ],
+        [
+          25.032259,
+          74.636639
+        ]
+      ]
+    },
+    {
+      "id": "guest_house",
+      "name": "Guest House",
+      "code": "GHOUSE",
+      "category": "Dining",
+      "description": "University hospitality suites for visiting professors, VIP delegates, parents, and academic scholars.",
+      "lat": 25.032001,
+      "lng": 74.636148,
+      "color": "#f97316",
+      "iconType": "utensils",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": true,
+      "facilities": [
+        "Step-Free Porch",
+        "Visitor Reception",
+        "Dining Lounge"
+      ],
+      "entranceNodeId": "node_ent_guest_house",
+      "buildingFootprint": [
+        [
+          25.032069,
+          74.636074
+        ],
+        [
+          25.032069,
+          74.636223
+        ],
+        [
+          25.031934,
+          74.636223
+        ],
+        [
+          25.031934,
+          74.636074
+        ]
+      ]
+    },
+    {
+      "id": "park",
+      "name": "Park",
+      "code": "PRK",
+      "category": "Green Area",
+      "description": "Serene landscaped garden quad with shaded pergolas, paved walking circuits, and native flowering trees.",
+      "lat": 25.032028,
+      "lng": 74.636386,
+      "color": "#22c55e",
+      "iconType": "tree",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Paved Step-Free Walkways",
+        "Rest Benches",
+        "Tactile Edge Borders"
+      ],
+      "entranceNodeId": "node_ent_park",
+      "buildingFootprint": [
+        [
+          25.03211,
+          74.636297
+        ],
+        [
+          25.03211,
+          74.636475
+        ],
+        [
+          25.031947,
+          74.636475
+        ],
+        [
+          25.031947,
+          74.636297
+        ]
+      ]
+    },
+    {
+      "id": "temple",
+      "name": "Temple",
+      "code": "TMPL",
+      "category": "Worship",
+      "description": "Traditional campus shrine for prayer, meditation, and spiritual reflection, surrounded by peaceful gardens.",
+      "lat": 25.031947,
+      "lng": 74.636609,
+      "color": "#3b82f6",
+      "iconType": "building",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Dedicated West Side Ramp",
+        "Shoe Stand with Handrail",
+        "Spiritual Sanctuary"
+      ],
+      "entranceNodeId": "node_ent_temple",
+      "buildingFootprint": [
+        [
+          25.032001,
+          74.63655
+        ],
+        [
+          25.032001,
+          74.636669
+        ],
+        [
+          25.031893,
+          74.636669
+        ],
+        [
+          25.031893,
+          74.63655
+        ]
+      ]
+    },
+    {
+      "id": "kumbah_hostel",
+      "name": "Kumbah Hostel",
+      "code": "KBH",
+      "category": "Hostel",
+      "description": "Spacious multi-wing boys hostel named after Maharana Kumbha with high-speed internet and student common room.",
+      "lat": 25.032028,
+      "lng": 74.636877,
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Dual Handrail Ramp",
+        "Wheelchair Lift",
+        "Braille Room Signage"
+      ],
+      "entranceNodeId": "node_ent_kumbah",
+      "buildingFootprint": [
+        [
+          25.03211,
+          74.636788
+        ],
+        [
+          25.03211,
+          74.636966
+        ],
+        [
+          25.031947,
+          74.636966
+        ],
+        [
+          25.031947,
+          74.636788
+        ]
+      ]
+    },
+    {
+      "id": "engineering_block",
+      "name": "Engineering Block",
+      "code": "ENG",
+      "category": "Academic",
+      "description": "Iconic expansive engineering complex housing advanced robotics, CAD labs, machine workshops, and lecture theatres.",
+      "lat": 25.031582,
+      "lng": 74.636312,
+      "color": "#ea580c",
+      "iconType": "gear",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Central Courtyard Ramp",
+        "Heavy Duty Elevators",
+        "Wide Corridor Thresholds"
+      ],
+      "entranceNodeId": "node_ent_eng_block",
+      "buildingFootprint": [
+        [
+          25.031731,
+          74.636148
+        ],
+        [
+          25.031731,
+          74.636475
+        ],
+        [
+          25.031433,
+          74.636475
+        ],
+        [
+          25.031433,
+          74.636148
+        ]
+      ]
+    },
+    {
+      "id": "mewar_university",
+      "name": "Mewar University",
+      "code": "MU_MAIN",
+      "category": "Administration",
+      "description": "Central administrative headquarters, vice-chancellor chambers, registrar, admissions office, and main university facade.",
+      "lat": 25.031338,
+      "lng": 74.63649,
+      "color": "#2563eb",
+      "iconType": "graduation",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Front Entrance Ramp",
+        "Automated Push-Plate Doors",
+        "Main Elevator Lobby",
+        "Information Helpdesk"
+      ],
+      "entranceNodeId": "node_ent_mewar_univ",
+      "buildingFootprint": [
+        [
+          25.031406,
+          74.636371
+        ],
+        [
+          25.031406,
+          74.636609
+        ],
+        [
+          25.03127,
+          74.636609
+        ],
+        [
+          25.03127,
+          74.636371
+        ]
+      ]
+    },
+    {
+      "id": "computer_sector_block",
+      "name": "Computer Sector Block",
+      "code": "CS_IT",
+      "category": "Academic",
+      "description": "High-tech IT and Computer Science center with cloud data labs, AI research centers, and software innovation studios.",
+      "lat": 25.031528,
+      "lng": 74.636788,
+      "color": "#06b6d4",
+      "iconType": "monitor",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Ground Floor Accessible Lab",
+        "Tactile Paving Paths",
+        "Elevator to Upper Labs"
+      ],
+      "entranceNodeId": "node_ent_cs_block",
+      "buildingFootprint": [
+        [
+          25.031609,
+          74.636684
+        ],
+        [
+          25.031609,
+          74.636892
+        ],
+        [
+          25.031446,
+          74.636892
+        ],
+        [
+          25.031446,
+          74.636684
+        ]
+      ]
+    },
+    {
+      "id": "faculty_block_1",
+      "name": "Faculty Block (North)",
+      "code": "FAC_N",
+      "category": "Academic",
+      "description": "Academic departments, professor faculty cabins, seminar rooms, and departmental research offices.",
+      "lat": 25.031609,
+      "lng": 74.636996,
+      "color": "#ec4899",
+      "iconType": "building",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": false,
+      "facilities": [
+        "Ramp Access",
+        "Elevator",
+        "Accessible Consultation Desk"
+      ],
+      "entranceNodeId": "node_ent_faculty_1",
+      "buildingFootprint": [
+        [
+          25.031676,
+          74.636922
+        ],
+        [
+          25.031676,
+          74.63707
+        ],
+        [
+          25.031541,
+          74.63707
+        ],
+        [
+          25.031541,
+          74.636922
+        ]
+      ]
+    },
+    {
+      "id": "badel_boys_hostel",
+      "name": "Badel Boys Hostel",
+      "code": "BBH",
+      "category": "Hostel",
+      "description": "Modern boys residence located centrally near university mess and sports arenas.",
+      "lat": 25.031324,
+      "lng": 74.636966,
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Level Ground Entrance",
+        "Ground Floor Mobility Rooms"
+      ],
+      "entranceNodeId": "node_ent_badel_hostel",
+      "buildingFootprint": [
+        [
+          25.031392,
+          74.636892
+        ],
+        [
+          25.031392,
+          74.637041
+        ],
+        [
+          25.031257,
+          74.637041
+        ],
+        [
+          25.031257,
+          74.636892
+        ]
+      ]
+    },
+    {
+      "id": "mess_1",
+      "name": "Mess",
+      "code": "MESS_1",
+      "category": "Dining",
+      "description": "Primary multi-cuisine student dining hall serving breakfast, lunch, snacks, and dinner with ample seating.",
+      "lat": 25.031121,
+      "lng": 74.636981,
+      "color": "#f97316",
+      "iconType": "utensils",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": true,
+      "facilities": [
+        "Zero Threshold Wide Doors",
+        "Low Height Food Serving Counters",
+        "Spacious Wheelchair Aisle"
+      ],
+      "entranceNodeId": "node_ent_mess_1",
+      "buildingFootprint": [
+        [
+          25.031189,
+          74.636907
+        ],
+        [
+          25.031189,
+          74.637055
+        ],
+        [
+          25.031054,
+          74.637055
+        ],
+        [
+          25.031054,
+          74.636907
+        ]
+      ]
+    },
+    {
+      "id": "law_block",
+      "name": "Law Block",
+      "code": "LAW",
+      "category": "Academic",
+      "description": "School of Legal Studies with high-fidelity moot court hall, legal aid clinic, and dedicated law library.",
+      "lat": 25.030932,
+      "lng": 74.636996,
+      "color": "#3b82f6",
+      "iconType": "building",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Moot Court Ramp",
+        "Wheelchair Jury/Defense Bay",
+        "Braille Law Text Section"
+      ],
+      "entranceNodeId": "node_ent_law_block",
+      "buildingFootprint": [
+        [
+          25.031,
+          74.636922
+        ],
+        [
+          25.031,
+          74.63707
+        ],
+        [
+          25.030864,
+          74.63707
+        ],
+        [
+          25.030864,
+          74.636922
+        ]
+      ]
+    },
+    {
+      "id": "law_park",
+      "name": "Law park",
+      "code": "LPK",
+      "category": "Green Area",
+      "description": "Pleasant green open lawn adjacent to Law Block and Football Ground, popular for open-air study and debates.",
+      "lat": 25.031027,
+      "lng": 74.636743,
+      "color": "#22c55e",
+      "iconType": "tree",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Smooth Paved Perimeter",
+        "Garden Benches",
+        "Shaded Tree Canopy"
+      ],
+      "entranceNodeId": "node_ent_law_park",
+      "buildingFootprint": [
+        [
+          25.031121,
+          74.636654
+        ],
+        [
+          25.031121,
+          74.636832
+        ],
+        [
+          25.030932,
+          74.636832
+        ],
+        [
+          25.030932,
+          74.636654
+        ]
+      ]
+    },
+    {
+      "id": "football_ground",
+      "name": "Football Ground",
+      "code": "FB_FLD",
+      "category": "Sports",
+      "description": "Regulation size natural grass soccer stadium with perimeter spectator stands and floodlighting.",
+      "lat": 25.031013,
+      "lng": 74.636431,
+      "color": "#10b981",
+      "iconType": "ball",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Accessible Spectator Viewing Deck",
+        "Paved Perimeter Track",
+        "Level Pitch Access"
+      ],
+      "entranceNodeId": "node_ent_football_ground",
+      "buildingFootprint": [
+        [
+          25.031189,
+          74.636297
+        ],
+        [
+          25.031189,
+          74.636565
+        ],
+        [
+          25.030837,
+          74.636565
+        ],
+        [
+          25.030837,
+          74.636297
+        ]
+      ]
+    },
+    {
+      "id": "cricket_ground",
+      "name": "Cricket Ground",
+      "code": "CRK_FLD",
+      "category": "Sports",
+      "description": "Oval cricket stadium with manicured outfield, professional turf wicket, pavilion, and training practice nets.",
+      "lat": 25.030553,
+      "lng": 74.63649,
+      "color": "#10b981",
+      "iconType": "cricket",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Level Perimeter Access",
+        "Pavilion Ramp",
+        "Wheelchair Spectator Bays"
+      ],
+      "entranceNodeId": "node_ent_cricket_ground",
+      "buildingFootprint": [
+        [
+          25.030715,
+          74.636312
+        ],
+        [
+          25.030715,
+          74.636669
+        ],
+        [
+          25.03039,
+          74.636669
+        ],
+        [
+          25.03039,
+          74.636312
+        ]
+      ]
+    },
+    {
+      "id": "gym",
+      "name": "Gym",
+      "code": "GYM",
+      "category": "Sports",
+      "description": "Campus Fitness & Sports Training Center equipped with cardio machines, weights, and physiotherapy fitness instructors.",
+      "lat": 25.030621,
+      "lng": 74.636922,
+      "color": "#ef4444",
+      "iconType": "cross",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Ramped Entrance",
+        "Accessible Locker Rooms",
+        "Adaptive Fitness Equipment"
+      ],
+      "entranceNodeId": "node_ent_gym",
+      "buildingFootprint": [
+        [
+          25.030675,
+          74.636847
+        ],
+        [
+          25.030675,
+          74.636996
+        ],
+        [
+          25.030566,
+          74.636996
+        ],
+        [
+          25.030566,
+          74.636847
+        ]
+      ]
+    },
+    {
+      "id": "mess_2",
+      "name": "Mess 2",
+      "code": "MESS_2",
+      "category": "Dining",
+      "description": "South campus cafeteria and cafeteria court catering to student residences and sports complex visitors.",
+      "lat": 25.030431,
+      "lng": 74.636951,
+      "color": "#f97316",
+      "iconType": "utensils",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Wheelchair Friendly Seating",
+        "Step-Free Entrance",
+        "Accessible Restroom"
+      ],
+      "entranceNodeId": "node_ent_mess_2",
+      "buildingFootprint": [
+        [
+          25.030485,
+          74.636877
+        ],
+        [
+          25.030485,
+          74.637026
+        ],
+        [
+          25.030377,
+          74.637026
+        ],
+        [
+          25.030377,
+          74.636877
+        ]
+      ]
+    },
+    {
+      "id": "faculty_block_2",
+      "name": "Faculty Block (South)",
+      "code": "FAC_S",
+      "category": "Academic",
+      "description": "Southern faculty office complex, postgraduate research offices, and academic staff housing suites.",
+      "lat": 25.030241,
+      "lng": 74.637011,
+      "color": "#ec4899",
+      "iconType": "building",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": false,
+      "facilities": [
+        "Ramp Approach",
+        "Accessible Lift",
+        "Level Corridor Access"
+      ],
+      "entranceNodeId": "node_ent_faculty_2",
+      "buildingFootprint": [
+        [
+          25.030309,
+          74.636936
+        ],
+        [
+          25.030309,
+          74.637085
+        ],
+        [
+          25.030174,
+          74.637085
+        ],
+        [
+          25.030174,
+          74.636936
+        ]
+      ]
+    },
+    {
+      "id": "auditorium",
+      "name": "Auditorium",
+      "code": "AUD",
+      "category": "Academic",
+      "description": "Grand university convention hall for convocation ceremonies, cultural fests, national conferences, and dramas.",
+      "lat": 25.030241,
+      "lng": 74.636639,
+      "color": "#3b82f6",
+      "iconType": "building",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Dedicated Accessible Entrance Ramp",
+        "Wheelchair Stage Access Lift",
+        "Designated Front-Row Seating",
+        "Assistive Listening System"
+      ],
+      "entranceNodeId": "node_ent_auditorium",
+      "buildingFootprint": [
+        [
+          25.030336,
+          74.636505
+        ],
+        [
+          25.030336,
+          74.636773
+        ],
+        [
+          25.030147,
+          74.636773
+        ],
+        [
+          25.030147,
+          74.636505
+        ]
+      ]
+    }
+  ]
+}

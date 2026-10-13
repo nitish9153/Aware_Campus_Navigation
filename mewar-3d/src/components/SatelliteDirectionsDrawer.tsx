@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, ArrowUpDown, Accessibility, Footprints, RotateCcw, AlertTriangle, Navigation, MapPin, Building, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, ArrowUpDown, Accessibility, Footprints, RotateCcw, AlertTriangle, Navigation, MapPin, Building, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import type { SatelliteLocation } from '../data/mewarSatelliteData';
 import type { SatelliteRouteResult } from '../utils/satelliteDijkstra';
 import type { IndoorBuilding, BuildingFloor, FloorRoom } from '../types/indoor';
@@ -11,7 +11,7 @@ interface SatelliteDirectionsDrawerProps {
   onSelectStart: (loc: SatelliteLocation | null) => void;
   onSelectDest: (loc: SatelliteLocation | null) => void;
   onSwap: () => void;
-  onClose: () => void;
+  onClose?: () => void;
   onClear: () => void;
   wheelchairOnly: boolean;
   onToggleWheelchair: (val: boolean) => void;
@@ -35,16 +35,27 @@ export const SatelliteDirectionsDrawer: React.FC<SatelliteDirectionsDrawerProps>
   selectedRoomInfo,
   onOpenIndoorModal
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <div className="absolute top-20 left-4 z-30 w-full max-w-sm sm:max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden pointer-events-auto animate-in fade-in slide-in-from-top duration-200">
+    <div className="absolute bottom-6 left-4 z-30 w-[calc(100%-2rem)] sm:w-96 max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden pointer-events-auto animate-in fade-in slide-in-from-bottom duration-200">
       
       {/* Dark Navy-Blue Header & Mode Selectors */}
-      <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+      <div className="p-3 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+            <Navigation className="w-3.5 h-3.5 fill-white" />
+          </div>
+          <span className="text-xs font-black tracking-wide text-white">
+            Get Directions
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
           {/* Walking Mode Button */}
           <button
             onClick={() => onToggleWheelchair(false)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
               !wheelchairOnly
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400'
                 : 'text-slate-300 hover:bg-slate-800'
@@ -56,7 +67,7 @@ export const SatelliteDirectionsDrawer: React.FC<SatelliteDirectionsDrawerProps>
           {/* Wheelchair Accessible Mode Button */}
           <button
             onClick={() => onToggleWheelchair(true)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-all ${
               wheelchairOnly
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-1 ring-emerald-400'
                 : 'text-slate-300 hover:bg-slate-800'
@@ -64,17 +75,30 @@ export const SatelliteDirectionsDrawer: React.FC<SatelliteDirectionsDrawerProps>
           >
             <Accessibility className="w-3.5 h-3.5" /> Accessible
           </button>
-        </div>
 
-        {/* Close Drawer Button */}
-        <button
-          onClick={onClose}
-          className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
-          title="Close Directions"
-        >
-          <X className="w-4 h-4" />
-        </button>
+          {/* Minimize / Expand Toggle */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors ml-0.5"
+            title={isCollapsed ? "Expand Directions" : "Minimize Directions"}
+          >
+            {isCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors"
+              title="Close Directions"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
+
+      {!isCollapsed && (
+        <>
 
       {/* Origin & Destination Selectors */}
       <div className="p-4 border-b border-slate-100 space-y-2.5 relative bg-slate-50/50">
@@ -195,23 +219,23 @@ export const SatelliteDirectionsDrawer: React.FC<SatelliteDirectionsDrawerProps>
       {/* Route Results & Step-by-Step Directions */}
       <div className="p-4 max-h-[calc(100vh-340px)] overflow-y-auto space-y-3">
         {activeRoute && !activeRoute.isVerified ? (
-          /* REQUIREMENT 8: If no verified path exists, show "Route needs verification" */
-          <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-xl space-y-2.5 animate-in fade-in">
-            <div className="flex items-center gap-2 text-amber-900 font-black text-sm">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-              <span>Route needs verification</span>
+          /* Prominently display 'No valid walking route found.' per specification */
+          <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-xl space-y-2.5 animate-in fade-in">
+            <div className="flex items-center gap-2 text-rose-900 font-black text-sm">
+              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+              <span>No valid walking route found.</span>
             </div>
-            <p className="text-xs text-amber-800 leading-relaxed font-medium">
-              No verified walkable road or pedestrian path currently connects these two locations.
-              The navigation system avoids inventing straight lines across buildings, private blocks, or unpaved land.
+            <p className="text-xs text-rose-800 leading-relaxed font-medium">
+              No verified walking path currently connects these two campus locations on the allowed red-line network.
+              AccessPath strictly prevents shortcuts across buildings, gardens, sports fields, or unmapped ground.
             </p>
             {wheelchairOnly && (
-              <div className="text-[11px] text-amber-900 bg-amber-100/70 p-2 rounded-lg font-semibold">
-                💡 Tip: Try switching to "Standard Walking" mode in case non-step-free paths exist.
+              <div className="text-[11px] text-rose-900 bg-rose-100/70 p-2 rounded-lg font-semibold">
+                💡 Tip: Try switching to standard "Walking" mode to check if non-step-free paths exist.
               </div>
             )}
             <div className="text-[11px] text-slate-600 pt-1 font-medium">
-              Use the <span className="font-bold text-slate-800">Admin Road Network Editor</span> above to map or verify connecting paths between these locations.
+              You can also use <span className="font-bold text-slate-800">Admin Calibration Mode</span> to connect route junctions.
             </div>
           </div>
         ) : activeRoute && activeRoute.isVerified ? (
@@ -252,6 +276,30 @@ export const SatelliteDirectionsDrawer: React.FC<SatelliteDirectionsDrawerProps>
               </div>
             )}
 
+            {/* Seamless Transition to Indoor Room Navigation for Kumbah Hostel */}
+            {(destLocation?.id === 'kumba_hostel' || destLocation?.aliases?.includes('Kumbah Hostel') || destLocation?.name?.includes('Kumbah')) && (
+              <div className="p-3 bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-xl shadow-md border border-cyan-500/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black flex items-center gap-1.5 text-cyan-300">
+                    🏢 Destination: Kumbah Hostel Ground Floor
+                  </span>
+                  <span className="text-[10px] font-bold bg-cyan-950 px-2 py-0.5 rounded text-cyan-400 border border-cyan-800">
+                    Rooms 1–16
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Outdoor route completes at the North Portico Entrance. Continue directly to your room or facilities on the Ground Floor.
+                </p>
+                <button
+                  onClick={() => onOpenIndoorModal?.()}
+                  className="w-full py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 rounded-lg text-xs font-black flex items-center justify-center gap-1.5 transition-all shadow-md"
+                >
+                  <span>Continue Indoor to Ground Floor Room</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
             {/* Turn by Turn Directions */}
             <div className="space-y-2">
               <div className="text-xs font-extrabold text-slate-700 flex items-center justify-between">
@@ -288,6 +336,8 @@ export const SatelliteDirectionsDrawer: React.FC<SatelliteDirectionsDrawerProps>
           </div>
         )}
       </div>
+      </>
+      )}
 
     </div>
   );

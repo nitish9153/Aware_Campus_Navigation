@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SatelliteMap } from './components/SatelliteMap';
+import { OsmCampusMap } from './components/OsmCampusMap';
 import { SatelliteHeader } from './components/SatelliteHeader';
 import { SatelliteSearchBar } from './components/SatelliteSearchBar';
 import { SatellitePlaceCard } from './components/SatellitePlaceCard';
@@ -7,59 +8,198 @@ import { SatelliteDirectionsDrawer } from './components/SatelliteDirectionsDrawe
 import { SatelliteLegend } from './components/SatelliteLegend';
 import { AdminNetworkDrawer } from './components/AdminNetworkDrawer';
 import { IndoorNavigationModal } from './components/IndoorNavigationModal';
+import { KumbahHostelNavigator } from './components/KumbahHostelNavigator';
 import { AdminIndoorEditor } from './components/AdminIndoorEditor';
+import { AdminLocationModal } from './components/AdminLocationModal';
+import { AdminSatelliteLocationModal } from './components/AdminSatelliteLocationModal';
+
+// Satellite image dataset (Leaflet CRS.Simple)
 import {
-  SATELLITE_CAMPUS_LOCATIONS,
   type SatelliteLocation,
   type SatellitePathNode,
   type SatellitePathEdge,
   loadSatellitePathNetwork,
   saveSatellitePathNetwork,
-  resetSatellitePathNetwork
+  resetSatellitePathNetwork,
+  loadSatelliteLocations,
+  saveSatelliteLocations,
+  resetSatelliteLocations,
+  fetchBackendSatelliteLocations
 } from './data/mewarSatelliteData';
-import { calculateSatelliteRoute, type SatelliteRouteResult } from './utils/satelliteDijkstra';
+
+import {
+  calculateSatelliteRoute,
+  type SatelliteRouteResult
+} from './utils/satelliteDijkstra';
+
+// OpenStreetMap & Indoor Data
+import {
+  type GeoLocation,
+  loadCampusGeoLocations,
+  saveCampusGeoLocations,
+  resetCampusGeoLocations,
+  fetchBackendCampusGeoLocations
+} from './data/mewarGeoData';
+
+import {
+  calculatePedestrianRoute,
+  type RoutingResult
+} from './services/osmRoutingService';
+
 import {
   type IndoorBuilding,
   type BuildingFloor,
-  type FloorRoom,
-  type IndoorRouteResult
+  type FloorRoom
 } from './types/indoor';
+
 import {
   loadIndoorBuildings,
   saveIndoorBuildings,
   resetIndoorBuildings,
   fetchBackendIndoorData
 } from './data/mewarIndoorData';
-import { calculateIndoorRoute } from './utils/indoorRouting';
 
 export const App: React.FC = () => {
-  const [locations] = useState<SatelliteLocation[]>(SATELLITE_CAMPUS_LOCATIONS);
-  const [selectedLocation, setSelectedLocation] = useState<SatelliteLocation | null>(null);
+  // Primary Map View Mode: defaults to 'satellite' (Uploaded Real Satellite Map)
+  const [mapMode, setMapMode] = useState<'satellite' | 'osm'>('satellite');
+
+  // =========================================================================
+  // 1. SATELLITE MAP STATE (Primary Map: mewar-university-campus.png)
+  // =========================================================================
+  const [satLocations, setSatLocations] = useState<SatelliteLocation[]>(() => {
+    return loadSatelliteLocations();
+  });
+  const [selectedSatLocation, setSelectedSatLocation] = useState<SatelliteLocation | null>(null);
+  const [startSatLocation, setStartSatLocation] = useState<SatelliteLocation | null>(null);
+  const [destSatLocation, setDestSatLocation] = useState<SatelliteLocation | null>(null);
+  const [wheelchairOnly, setWheelchairOnly] = useState<boolean>(false);
+  const [satRouteResult, setSatRouteResult] = useState<SatelliteRouteResult | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Directions state
-  const [isDirectionsOpen, setIsDirectionsOpen] = useState<boolean>(false);
-  const [startLocation, setStartLocation] = useState<SatelliteLocation | null>(null);
-  const [destLocation, setDestLocation] = useState<SatelliteLocation | null>(null);
-  const [wheelchairOnly, setWheelchairOnly] = useState<boolean>(false);
-  const [activeRoute, setActiveRoute] = useState<SatelliteRouteResult | null>(null);
+  // Sync custom calibrated satellite locations from backend on mount
+  useEffect(() => {
+    fetchBackendSatelliteLocations().then(backendLocs => {
+      if (backendLocs && backendLocs.length > 0) {
+        setSatLocations(backendLocs);
+      }
+    });
+  }, []);
 
-  // Indoor Building, Floor & Room State
+  // Satellite Network Nodes & Edges (for walking graph and admin mode)
+  const [network, setNetwork] = useState<{ nodes: SatellitePathNode[]; edges: SatellitePathEdge[] }>(() => {
+    return loadSatellitePathNetwork();
+  });
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [isAddNodeMode, setIsAddNodeMode] = useState<boolean>(false);
+  const [isConnectMode, setIsConnectMode] = useState<boolean>(false);
+
+  // Calculate Satellite Dijkstra Route when origin, destination or wheelchair mode changes
+  useEffect(() => {
+    if (!startSatLocation || !destSatLocation) {
+      setSatRouteResult(null);
+      return;
+    }
+
+    const route = calculateSatelliteRoute(
+      startSatLocation.entranceNodeId || startSatLocation.position,
+      destSatLocation.entranceNodeId || destSatLocation.position,
+      wheelchairOnly,
+      network.nodes,
+      network.edges
+    );
+    setSatRouteResult(route);
+  }, [startSatLocation, destSatLocation, wheelchairOnly, network]);
+
+  // Filter satellite locations by category chip
+  const displayedSatLocations = useMemo(() => {
+    if (!selectedCategory) return satLocations;
+    return satLocations.filter(loc => loc.category === selectedCategory);
+  }, [satLocations, selectedCategory]);
+
+  // Satellite Selection & Direction Handlers
+  const handleSelectSatLocation = useCallback((loc: SatelliteLocation) => {
+    setSelectedSatLocation(loc);
+  }, []);
+
+  const handleOpenDirections = useCallback(() => {
+    setIsDirectionsOpen(true);
+    setSelectedSatLocation(null);
+  }, []);
+
+  const handleGetDirectionsTo = useCallback((loc: SatelliteLocation) => {
+    setDestSatLocation(loc);
+    setIsDirectionsOpen(true);
+    setSelectedSatLocation(null);
+  }, []);
+
+  const handleSetAsStart = useCallback((loc: SatelliteLocation) => {
+    setStartSatLocation(loc);
+    setIsDirectionsOpen(true);
+    setSelectedSatLocation(null);
+  }, []);
+
+  const handleSwapDirections = useCallback(() => {
+    const tempStart = startSatLocation;
+    setStartSatLocation(destSatLocation);
+    setDestSatLocation(tempStart);
+  }, [startSatLocation, destSatLocation]);
+
+  const handleClearDirections = useCallback(() => {
+    setStartSatLocation(null);
+    setDestSatLocation(null);
+    setSatRouteResult(null);
+  }, []);
+
+  // =========================================================================
+  // 2. OSM SECONDARY MAP STATE
+  // =========================================================================
+  const [geoLocations, setGeoLocations] = useState<GeoLocation[]>(() => {
+    return loadCampusGeoLocations();
+  });
+  const [selectedGeoLocation, setSelectedGeoLocation] = useState<GeoLocation | null>(null);
+  const [startGeoLocation] = useState<GeoLocation | null>(null);
+  const [destGeoLocation] = useState<GeoLocation | null>(null);
+  const [osmRouteResult, setOsmRouteResult] = useState<RoutingResult | null>(null);
+
+  // Sync OSM locations from backend on mount
+  useEffect(() => {
+    fetchBackendCampusGeoLocations().then(backendLocs => {
+      if (backendLocs && backendLocs.length > 0) {
+        setGeoLocations(backendLocs);
+      }
+    });
+  }, []);
+
+  // OSM Route calculation
+  useEffect(() => {
+    if (mapMode !== 'osm' || !startGeoLocation || !destGeoLocation) {
+      setOsmRouteResult(null);
+      return;
+    }
+
+    calculatePedestrianRoute({
+      start: startGeoLocation,
+      dest: destGeoLocation,
+      wheelchairOnly
+    }).then(res => setOsmRouteResult(res)).catch(() => {});
+  }, [mapMode, startGeoLocation, destGeoLocation, wheelchairOnly]);
+
+  // =========================================================================
+  // 3. INDOOR BUILDING & FLOOR PLAN STATE
+  // =========================================================================
   const [indoorBuildings, setIndoorBuildings] = useState<IndoorBuilding[]>(() => {
     return loadIndoorBuildings();
   });
   const [isIndoorModalOpen, setIsIndoorModalOpen] = useState<boolean>(false);
   const [isAdminIndoorOpen, setIsAdminIndoorOpen] = useState<boolean>(false);
-  const [activeIndoorBuildingId, setActiveIndoorBuildingId] = useState<string | null>('engineering_block');
+  const [activeIndoorBuildingId, setActiveIndoorBuildingId] = useState<string | null>('kumba_hostel');
   const [activeIndoorFloorId, setActiveIndoorFloorId] = useState<string | null>(null);
-  const [activeIndoorRoute, setActiveIndoorRoute] = useState<IndoorRouteResult | null>(null);
   const [selectedRoomInfo, setSelectedRoomInfo] = useState<{
     building: IndoorBuilding;
     floor: BuildingFloor;
     room: FloorRoom;
   } | null>(null);
 
-  // Fetch latest indoor data from backend on mount
   useEffect(() => {
     fetchBackendIndoorData().then(data => {
       if (data && data.length > 0) {
@@ -68,89 +208,11 @@ export const App: React.FC = () => {
     });
   }, []);
 
-  // Legend visibility state
-  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(true);
-
-  // Road Network Graph State (Loaded from storage or verified defaults)
-  const [networkNodes, setNetworkNodes] = useState<SatellitePathNode[]>(() => {
-    return loadSatellitePathNetwork().nodes;
-  });
-  const [networkEdges, setNetworkEdges] = useState<SatellitePathEdge[]>(() => {
-    return loadSatellitePathNetwork().edges;
-  });
-
-  // Admin Network Editor state
-  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
-  const [selectedAdminNodeId, setSelectedAdminNodeId] = useState<string | null>(null);
-  const [isAddNodeMode, setIsAddNodeMode] = useState<boolean>(false);
-  const [isConnectMode, setIsConnectMode] = useState<boolean>(false);
-  const [adminToast, setAdminToast] = useState<string | null>(null);
-
-  const showAdminToast = (msg: string) => {
-    setAdminToast(msg);
-    setTimeout(() => setAdminToast(null), 3500);
-  };
-
-  // Filter locations by category
-  const displayedLocations = useMemo(() => {
-    if (!selectedCategory) return locations;
-    return locations.filter(loc => loc.category === selectedCategory);
-  }, [locations, selectedCategory]);
-
-  // Recalculate route whenever start, destination, wheelchair mode, or network graph changes
-  useEffect(() => {
-    if (startLocation && destLocation) {
-      const result = calculateSatelliteRoute(
-        startLocation.entranceNodeId || startLocation.position,
-        destLocation.entranceNodeId || destLocation.position,
-        wheelchairOnly,
-        networkNodes,
-        networkEdges
-      );
-      setActiveRoute(result);
-    } else {
-      setActiveRoute(null);
-    }
-  }, [startLocation, destLocation, wheelchairOnly, networkNodes, networkEdges]);
-
-  const handleSelectLocation = useCallback((loc: SatelliteLocation) => {
-    setSelectedLocation(loc);
+  const handleOpenIndoorNavigator = useCallback((buildingId: string = 'kumba_hostel') => {
+    setActiveIndoorBuildingId(buildingId);
+    setIsIndoorModalOpen(true);
   }, []);
 
-  const handleOpenDirections = useCallback(() => {
-    setIsDirectionsOpen(true);
-    setSelectedLocation(null);
-  }, []);
-
-  const handleGetDirectionsTo = useCallback((loc: SatelliteLocation) => {
-    setDestLocation(loc);
-    setIsDirectionsOpen(true);
-    setSelectedLocation(null);
-  }, []);
-
-  const handleSetAsStart = useCallback((loc: SatelliteLocation) => {
-    setStartLocation(loc);
-    setIsDirectionsOpen(true);
-    setSelectedLocation(null);
-  }, []);
-
-  const handleSwapDirections = useCallback(() => {
-    setStartLocation(prevStart => {
-      const temp = prevStart;
-      setDestLocation(temp);
-      return destLocation;
-    });
-  }, [destLocation]);
-
-  const handleClearDirections = useCallback(() => {
-    setStartLocation(null);
-    setDestLocation(null);
-    setActiveRoute(null);
-    setSelectedRoomInfo(null);
-    setActiveIndoorRoute(null);
-  }, []);
-
-  // Indoor Room Selection and Route Calculation Handler (Requirement 4)
   const handleSelectRoomHierarchy = useCallback((
     building: IndoorBuilding,
     floor: BuildingFloor,
@@ -159,184 +221,27 @@ export const App: React.FC = () => {
     setSelectedRoomInfo({ building, floor, room });
     setActiveIndoorBuildingId(building.id);
     setActiveIndoorFloorId(floor.id);
-
-    // 1. Show building on outdoor campus map
-    const matchedOutdoorLoc = locations.find(
-      l => l.id === building.outdoorBuildingId || l.id === building.id
-    ) || locations.find(l => l.name.toLowerCase().includes(building.name.toLowerCase().slice(0, 5))) || null;
-
-    if (matchedOutdoorLoc) {
-      setDestLocation(matchedOutdoorLoc);
-      setSelectedLocation(matchedOutdoorLoc);
-      // If start point not yet selected, default to Sanga Hostel or Main Gate
-      if (!startLocation) {
-        const defaultStart = locations.find(l => l.id === 'sanga_hostel') || locations[0];
-        if (defaultStart && defaultStart.id !== matchedOutdoorLoc.id) {
-          setStartLocation(defaultStart);
-        }
-      }
-    }
-
-    // 4 & 5: Calculate indoor route from entrance to room door
-    if (room.id) {
-      const indoorRoute = calculateIndoorRoute(
-        building,
-        room.id,
-        wheelchairOnly
-      );
-      setActiveIndoorRoute(indoorRoute);
-    } else {
-      setActiveIndoorRoute(null);
-    }
-
-    // 3. Open building floor plan modal
     setIsIndoorModalOpen(true);
-    showAdminToast(`Selected ${building.name} → ${floor.floorName} → Room ${room.roomNumber}`);
-  }, [locations, startLocation, wheelchairOnly]);
-
-  const handleExploreIndoorForLocation = useCallback((loc: SatelliteLocation) => {
-    const indoorBldg = indoorBuildings.find(
-      b => b.outdoorBuildingId === loc.id || b.id === loc.id
-    ) || indoorBuildings[0];
-
-    if (indoorBldg) {
-      setActiveIndoorBuildingId(indoorBldg.id);
-      setActiveIndoorFloorId(indoorBldg.floors[0]?.id || null);
-      setActiveIndoorRoute(null);
-      setSelectedRoomInfo(null);
-      setIsIndoorModalOpen(true);
-    }
-  }, [indoorBuildings]);
-
-  const handleOpenIndoorNavigator = useCallback(() => {
-    const defaultBldg = indoorBuildings[0];
-    if (defaultBldg) {
-      setActiveIndoorBuildingId(defaultBldg.id);
-      setActiveIndoorFloorId(defaultBldg.floors[0]?.id || null);
-    }
-    setIsIndoorModalOpen(true);
-  }, [indoorBuildings]);
-
-  const handleSaveIndoorBuildings = useCallback((updated: IndoorBuilding[]) => {
-    setIndoorBuildings(updated);
-    saveIndoorBuildings(updated);
-    showAdminToast('Indoor floors & rooms saved to backend database & storage!');
   }, []);
 
-  const handleResetIndoorBuildings = useCallback(async () => {
-    const def = await resetIndoorBuildings();
-    setIndoorBuildings(def);
-    showAdminToast('Reset indoor data to verified campus blueprints.');
-  }, []);
+  // =========================================================================
+  // 4. COMMON UI / ADMIN / TOAST STATE
+  // =========================================================================
+  const [isDirectionsOpen, setIsDirectionsOpen] = useState<boolean>(true);
+  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(true);
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(false);
+  const [isAdminLocationModalOpen, setIsAdminLocationModalOpen] = useState<boolean>(false);
+  const [adminToast, setAdminToast] = useState<string | null>(null);
 
-  // Admin Node & Edge Handlers
-  const handleUpdateNode = useCallback((updated: SatellitePathNode) => {
-    setNetworkNodes(prev => prev.map(n => (n.id === updated.id ? updated : n)));
-    showAdminToast(`Updated node "${updated.name}"`);
-  }, []);
-
-  const handleUpdateNodePosition = useCallback((nodeId: string, newPos: [number, number]) => {
-    setNetworkNodes(prev =>
-      prev.map(n => (n.id === nodeId ? { ...n, position: newPos } : n))
-    );
-  }, []);
-
-  const handleDeleteNode = useCallback((nodeId: string) => {
-    setNetworkNodes(prev => prev.filter(n => n.id !== nodeId));
-    setNetworkEdges(prev => prev.filter(e => e.source !== nodeId && e.target !== nodeId));
-    setSelectedAdminNodeId(null);
-    showAdminToast(`Deleted node ${nodeId}`);
-  }, []);
-
-  const handleAddNodeAtPosition = useCallback((pos: [number, number]) => {
-    const newId = `node_junc_custom_${Date.now().toString().slice(-4)}`;
-    const newNode: SatellitePathNode = {
-      id: newId,
-      name: `Road Waypoint ${newId.slice(-4)}`,
-      position: pos
-    };
-    setNetworkNodes(prev => [...prev, newNode]);
-    setSelectedAdminNodeId(newId);
-    setIsAddNodeMode(false);
-    showAdminToast(`Added new road node at [${pos[0]}, ${pos[1]}]`);
-  }, []);
-
-  const handleAddEdge = useCallback((edge: SatellitePathEdge) => {
-    setNetworkEdges(prev => [...prev, edge]);
-    showAdminToast(`Connected ${edge.source} to ${edge.target} (${edge.distanceMeters}m)`);
-  }, []);
-
-  const handleDeleteEdge = useCallback((edgeId: string) => {
-    setNetworkEdges(prev => prev.filter(e => e.id !== edgeId));
-    showAdminToast(`Deleted path edge`);
-  }, []);
-
-  const handleToggleEdgeAccessibility = useCallback((edgeId: string) => {
-    setNetworkEdges(prev =>
-      prev.map(e => (e.id === edgeId ? { ...e, isAccessible: !e.isAccessible } : e))
-    );
-  }, []);
-
-  const handleSaveNetwork = useCallback(() => {
-    saveSatellitePathNetwork(networkNodes, networkEdges);
-    showAdminToast('Network successfully saved to local storage!');
-  }, [networkNodes, networkEdges]);
-
-  const handleResetNetwork = useCallback(() => {
-    const defaults = resetSatellitePathNetwork();
-    setNetworkNodes(defaults.nodes);
-    setNetworkEdges(defaults.edges);
-    setSelectedAdminNodeId(null);
-    showAdminToast('Reset to default verified campus road network!');
-  }, []);
-
-  const handleImportNetwork = useCallback((nodes: SatellitePathNode[], edges: SatellitePathEdge[]) => {
-    setNetworkNodes(nodes);
-    setNetworkEdges(edges);
-    saveSatellitePathNetwork(nodes, edges);
-    setSelectedAdminNodeId(null);
-    showAdminToast('Imported and saved new road network!');
-  }, []);
-
-  const handleConnectToNode = useCallback((targetNodeId: string) => {
-    if (!selectedAdminNodeId || selectedAdminNodeId === targetNodeId) return;
-    const srcNode = networkNodes.find(n => n.id === selectedAdminNodeId);
-    const tgtNode = networkNodes.find(n => n.id === targetNodeId);
-    if (!srcNode || !tgtNode) return;
-
-    // Check if edge already exists
-    const exists = networkEdges.some(
-      e =>
-        (e.source === selectedAdminNodeId && e.target === targetNodeId) ||
-        (e.source === targetNodeId && e.target === selectedAdminNodeId)
-    );
-    if (exists) {
-      showAdminToast('Edge already exists between these nodes');
-      return;
-    }
-
-    const dx = srcNode.position[1] - tgtNode.position[1];
-    const dy = srcNode.position[0] - tgtNode.position[0];
-    const distMeters = Math.max(5, Math.round(Math.sqrt(dx * dx + dy * dy) * 0.45));
-
-    const newEdge: SatellitePathEdge = {
-      id: `e_${selectedAdminNodeId}_${targetNodeId}_${Date.now().toString().slice(-4)}`,
-      source: selectedAdminNodeId,
-      target: targetNodeId,
-      distanceMeters: distMeters,
-      isAccessible: true,
-      description: `Walkway connecting ${srcNode.name} and ${tgtNode.name}`
-    };
-
-    setNetworkEdges(prev => [...prev, newEdge]);
-    setIsConnectMode(false);
-    showAdminToast(`Connected ${srcNode.name} to ${tgtNode.name}`);
-  }, [selectedAdminNodeId, networkNodes, networkEdges]);
+  const showAdminToast = (msg: string) => {
+    setAdminToast(msg);
+    setTimeout(() => setAdminToast(null), 3500);
+  };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-slate-950 font-sans select-none">
+    <div className="relative w-screen h-screen overflow-hidden bg-slate-950 font-sans">
       
-      {/* 1. Dark Navy-Blue Header */}
+      {/* 1. Main Navigation Header */}
       <SatelliteHeader
         onOpenDirections={handleOpenDirections}
         isDirectionsOpen={isDirectionsOpen}
@@ -344,119 +249,186 @@ export const App: React.FC = () => {
         isLegendOpen={isLegendOpen}
         wheelchairOnly={wheelchairOnly}
         onToggleWheelchair={setWheelchairOnly}
-        totalLocationsCount={locations.length}
+        totalLocationsCount={satLocations.length}
         isAdminMode={isAdminMode}
         onToggleAdminMode={() => {
           setIsAdminMode(!isAdminMode);
-          if (isAdminMode) {
-            setSelectedAdminNodeId(null);
-            setIsAddNodeMode(false);
-            setIsConnectMode(false);
-          }
+          showAdminToast(!isAdminMode ? 'Admin Mode: Enabled' : 'Admin Mode: Disabled');
         }}
-        onOpenIndoorNavigator={handleOpenIndoorNavigator}
+        onOpenIndoorNavigator={() => handleOpenIndoorNavigator('kumbah_hostel')}
         onOpenIndoorAdmin={() => setIsAdminIndoorOpen(true)}
+        onOpenAdminLocationModal={() => setIsAdminLocationModalOpen(true)}
+        mapMode={mapMode}
+        onToggleMapMode={setMapMode}
       />
 
-      {/* 2. Interactive Leaflet Satellite Map Layer */}
+      {/* 2. Main Map Screen (Primary: Uploaded Satellite Image Map with L.CRS.Simple) */}
       <div className="absolute inset-0 pt-16">
-        <SatelliteMap
-          locations={displayedLocations}
-          selectedLocation={selectedLocation}
-          onSelectLocation={handleSelectLocation}
-          activeRoute={activeRoute}
-          startLocation={startLocation}
-          destLocation={destLocation}
-          isAdminMode={isAdminMode}
-          networkNodes={networkNodes}
-          networkEdges={networkEdges}
-          selectedNodeId={selectedAdminNodeId}
-          onSelectNode={setSelectedAdminNodeId}
-          onUpdateNodePosition={handleUpdateNodePosition}
-          isAddNodeMode={isAddNodeMode}
-          onAddNodeAtPosition={handleAddNodeAtPosition}
-          isConnectMode={isConnectMode}
-          onConnectToNode={handleConnectToNode}
-          onSelectEdge={edge => {
-            if (isAdminMode) {
-              setSelectedAdminNodeId(edge.source);
-            }
-          }}
-        />
+        {mapMode === 'satellite' ? (
+          <SatelliteMap
+            locations={displayedSatLocations}
+            selectedLocation={selectedSatLocation}
+            onSelectLocation={handleSelectSatLocation}
+            activeRoute={satRouteResult}
+            startLocation={startSatLocation}
+            destLocation={destSatLocation}
+            onSetAsStart={handleSetAsStart}
+            onSetAsDest={handleGetDirectionsTo}
+            onExploreIndoor={handleOpenIndoorNavigator}
+            isAdminMode={isAdminMode}
+            onUpdateLocationPosition={(locId, newPos) => {
+              setSatLocations(prev => {
+                const next = prev.map(l => l.id === locId ? { ...l, position: newPos } : l);
+                saveSatelliteLocations(next);
+                return next;
+              });
+              showAdminToast(`Calibrated position: [${newPos[0]}, ${newPos[1]}]`);
+            }}
+            networkNodes={network.nodes}
+            networkEdges={network.edges}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={setSelectedNodeId}
+            onUpdateNodePosition={(id, newPos) => {
+              setNetwork(prev => {
+                const nextNodes = prev.nodes.map(n => n.id === id ? { ...n, position: newPos } : n);
+                saveSatellitePathNetwork(nextNodes, prev.edges);
+                return { ...prev, nodes: nextNodes };
+              });
+              showAdminToast('Updated pathway node position');
+            }}
+            isAddNodeMode={isAddNodeMode}
+            onAddNodeAtPosition={pos => {
+              const newNode: SatellitePathNode = {
+                id: `node_${Date.now()}`,
+                name: `Point ${network.nodes.length + 1}`,
+                position: pos
+              };
+              setNetwork(prev => {
+                const nextNodes = [...prev.nodes, newNode];
+                saveSatellitePathNetwork(nextNodes, prev.edges);
+                return { ...prev, nodes: nextNodes };
+              });
+              showAdminToast('Added new walking network node');
+            }}
+            isConnectMode={isConnectMode}
+            onConnectToNode={targetId => {
+              if (!selectedNodeId || selectedNodeId === targetId) return;
+              const newEdge: SatellitePathEdge = {
+                id: `edge_${selectedNodeId}_${targetId}`,
+                source: selectedNodeId,
+                target: targetId,
+                distanceMeters: 20,
+                isAccessible: !wheelchairOnly,
+                description: 'Campus Path'
+              };
+              setNetwork(prev => {
+                const nextEdges = [...prev.edges, newEdge];
+                saveSatellitePathNetwork(prev.nodes, nextEdges);
+                return { ...prev, edges: nextEdges };
+              });
+              setIsConnectMode(false);
+              showAdminToast('Connected walking road segment');
+            }}
+          />
+        ) : (
+          <OsmCampusMap
+            locations={geoLocations}
+            selectedLocation={selectedGeoLocation}
+            onSelectLocation={setSelectedGeoLocation}
+            startLocation={startGeoLocation}
+            destLocation={destGeoLocation}
+            wheelchairOnly={wheelchairOnly}
+            isAdminMode={isAdminMode}
+            onUpdateLocationPosition={(locId, lat, lng) => {
+              setGeoLocations(prev => {
+                const next = prev.map(l => l.id === locId ? { ...l, lat, lng } : l);
+                saveCampusGeoLocations(next);
+                return next;
+              });
+            }}
+            onOpenLocationAdminModal={() => setIsAdminLocationModalOpen(true)}
+            activeRoute={osmRouteResult}
+            routeNotice={osmRouteResult?.notice}
+          />
+        )}
       </div>
 
-      {/* 3. Search Bar & Category Chips (Shown when Directions & Admin are NOT active) */}
-      {!isDirectionsOpen && !isAdminMode && (
+      {/* 3. Search Location Panel (Top Left) */}
+      {!isAdminMode && (
         <SatelliteSearchBar
-          locations={locations}
+          locations={satLocations}
           indoorBuildings={indoorBuildings}
-          onSelectLocation={handleSelectLocation}
+          onSelectLocation={handleSelectSatLocation}
           onOpenDirections={handleOpenDirections}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           onSelectRoomHierarchy={handleSelectRoomHierarchy}
-          onOpenIndoorExplorer={handleOpenIndoorNavigator}
         />
       )}
 
-      {/* 4. Google Maps Place Information Card (Shown when a place is selected and Directions is inactive) */}
-      {!isDirectionsOpen && !isAdminMode && (
-        <SatellitePlaceCard
-          location={selectedLocation}
-          onClose={() => setSelectedLocation(null)}
-          onGetDirectionsTo={handleGetDirectionsTo}
-          onSetAsStart={handleSetAsStart}
-          onExploreIndoor={handleExploreIndoorForLocation}
-        />
-      )}
+      {/* 4. Campus Landmark Place Card (Satellite or OpenStreetMap view) */}
+      {!isAdminMode && (selectedSatLocation || selectedGeoLocation) && (() => {
+        const placeLocation: SatelliteLocation = selectedSatLocation || (
+          satLocations.find(l => l.id === selectedGeoLocation!.id) || {
+            id: selectedGeoLocation!.id,
+            name: selectedGeoLocation!.name,
+            code: selectedGeoLocation!.code,
+            category: (selectedGeoLocation!.category === 'Library' ? 'Academic' : selectedGeoLocation!.category) as SatelliteLocation['category'],
+            description: selectedGeoLocation!.description || '',
+            position: [0, 0] as [number, number],
+            color: selectedGeoLocation!.color,
+            iconType: (selectedGeoLocation!.iconType === 'book' ? 'building' : selectedGeoLocation!.iconType) as SatelliteLocation['iconType'],
+            wheelchairAccessible: selectedGeoLocation!.wheelchairAccessible,
+            rampAvailable: selectedGeoLocation!.rampAvailable,
+            elevatorAvailable: selectedGeoLocation!.elevatorAvailable,
+            brailleSignage: selectedGeoLocation!.brailleSignage,
+            facilities: selectedGeoLocation!.facilities,
+            entranceNodeId: selectedGeoLocation!.entranceNodeId,
+          }
+        );
+        return (
+          <SatellitePlaceCard
+            location={placeLocation}
+            onClose={() => {
+              setSelectedSatLocation(null);
+              setSelectedGeoLocation(null);
+            }}
+            onGetDirectionsTo={loc => {
+              const satLoc = satLocations.find(l => l.id === loc.id) || loc;
+              handleGetDirectionsTo(satLoc);
+            }}
+            onSetAsStart={loc => {
+              const satLoc = satLocations.find(l => l.id === loc.id) || loc;
+              handleSetAsStart(satLoc);
+            }}
+            onExploreIndoor={loc => handleOpenIndoorNavigator(loc.id === 'kumba_hostel' ? 'kumbah_hostel' : loc.id)}
+          />
+        );
+      })()}
 
-      {/* 5. Google Maps Directions Drawer (Shown when Directions mode is active) */}
+      {/* 5. Outdoor Walking Directions Drawer */}
       {isDirectionsOpen && (
         <SatelliteDirectionsDrawer
-          locations={locations}
-          startLocation={startLocation}
-          destLocation={destLocation}
-          onSelectStart={setStartLocation}
-          onSelectDest={setDestLocation}
+          locations={satLocations}
+          startLocation={startSatLocation}
+          destLocation={destSatLocation}
+          onSelectStart={setStartSatLocation}
+          onSelectDest={setDestSatLocation}
           onSwap={handleSwapDirections}
           onClose={() => setIsDirectionsOpen(false)}
           onClear={handleClearDirections}
           wheelchairOnly={wheelchairOnly}
           onToggleWheelchair={setWheelchairOnly}
-          activeRoute={activeRoute}
+          activeRoute={satRouteResult}
           selectedRoomInfo={selectedRoomInfo}
-          onOpenIndoorModal={() => setIsIndoorModalOpen(true)}
+          onOpenIndoorModal={() => handleOpenIndoorNavigator('kumbah_hostel')}
         />
       )}
 
-      {/* 6. Admin Road Network Drawer (Shown when Admin Mode is active) */}
-      {isAdminMode && (
-        <AdminNetworkDrawer
-          isOpen={isAdminMode}
-          onClose={() => setIsAdminMode(false)}
-          nodes={networkNodes}
-          edges={networkEdges}
-          selectedNodeId={selectedAdminNodeId}
-          onSelectNode={setSelectedAdminNodeId}
-          onUpdateNode={handleUpdateNode}
-          onDeleteNode={handleDeleteNode}
-          onAddEdge={handleAddEdge}
-          onDeleteEdge={handleDeleteEdge}
-          onToggleEdgeAccessibility={handleToggleEdgeAccessibility}
-          onResetNetwork={handleResetNetwork}
-          onSaveNetwork={handleSaveNetwork}
-          isAddNodeMode={isAddNodeMode}
-          onToggleAddNodeMode={setIsAddNodeMode}
-          isConnectMode={isConnectMode}
-          onToggleConnectMode={setIsConnectMode}
-          onImportNetwork={handleImportNetwork}
-        />
-      )}
-
-      {/* 7. Location Legend (Upper-Right, hidden when Admin Drawer is open to avoid overlap) */}
-      {!isAdminMode && (
+      {/* 6. Campus Landmark Legend */}
+      {isLegendOpen && !isAdminMode && (
         <SatelliteLegend
-          locations={locations}
+          locations={satLocations}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           isOpen={isLegendOpen}
@@ -464,53 +436,217 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 8. Admin Notification Toast */}
-      {adminToast && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-4 py-2 rounded-xl border border-slate-700 shadow-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom duration-200">
-          <span>⚙️</span>
-          <span>{adminToast}</span>
-        </div>
-      )}
-
-      {/* 9. Indoor Floor Plan Navigation Modal (Requirements 1, 2, 3, 4, 5) */}
-      {isIndoorModalOpen && (
-        <IndoorNavigationModal
-          isOpen={isIndoorModalOpen}
-          onClose={() => setIsIndoorModalOpen(false)}
-          buildings={indoorBuildings}
-          initialBuildingId={activeIndoorBuildingId || undefined}
-          initialFloorId={activeIndoorFloorId || undefined}
-          activeIndoorRoute={activeIndoorRoute}
-          targetRoom={selectedRoomInfo ? selectedRoomInfo.room : null}
-          wheelchairOnly={wheelchairOnly}
-          onToggleWheelchair={setWheelchairOnly}
-          onSwitchToOutdoorMap={() => {
-            setIsIndoorModalOpen(false);
-            setIsDirectionsOpen(true);
+      {/* 7. Admin Network Drawer (When Admin Mode is active in Satellite view) */}
+      {isAdminMode && mapMode === 'satellite' && (
+        <AdminNetworkDrawer
+          isOpen={isAdminMode}
+          onClose={() => setIsAdminMode(false)}
+          nodes={network.nodes}
+          edges={network.edges}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={setSelectedNodeId}
+          onUpdateNode={updated => {
+            setNetwork(prev => {
+              const nextNodes = prev.nodes.map(n => n.id === updated.id ? updated : n);
+              saveSatellitePathNetwork(nextNodes, prev.edges);
+              return { ...prev, nodes: nextNodes };
+            });
+            showAdminToast('Updated pathway node');
           }}
-          onOpenAdminEditor={() => {
-            setIsIndoorModalOpen(false);
-            setIsAdminIndoorOpen(true);
+          onDeleteNode={nodeId => {
+            setNetwork(prev => {
+              const nextNodes = prev.nodes.filter(n => n.id !== nodeId);
+              const nextEdges = prev.edges.filter(e => e.source !== nodeId && e.target !== nodeId);
+              saveSatellitePathNetwork(nextNodes, nextEdges);
+              return { nodes: nextNodes, edges: nextEdges };
+            });
+            if (selectedNodeId === nodeId) setSelectedNodeId(null);
+            showAdminToast('Deleted node and connected edges');
+          }}
+          onAddEdge={edge => {
+            setNetwork(prev => {
+              const nextEdges = [...prev.edges, edge];
+              saveSatellitePathNetwork(prev.nodes, nextEdges);
+              return { ...prev, edges: nextEdges };
+            });
+            showAdminToast('Added walkway edge');
+          }}
+          onDeleteEdge={edgeId => {
+            setNetwork(prev => {
+              const nextEdges = prev.edges.filter(e => e.id !== edgeId);
+              saveSatellitePathNetwork(prev.nodes, nextEdges);
+              return { ...prev, edges: nextEdges };
+            });
+            showAdminToast('Deleted walkway edge');
+          }}
+          onToggleEdgeAccessibility={edgeId => {
+            setNetwork(prev => {
+              const nextEdges = prev.edges.map(e => e.id === edgeId ? { ...e, isAccessible: !e.isAccessible } : e);
+              saveSatellitePathNetwork(prev.nodes, nextEdges);
+              return { ...prev, edges: nextEdges };
+            });
+            showAdminToast('Toggled walkway accessibility');
+          }}
+          onResetNetwork={() => {
+            if (confirm('Reset satellite road network to verified default graph?')) {
+              const reset = resetSatellitePathNetwork();
+              setNetwork(reset);
+              showAdminToast('Reset walking network to default');
+            }
+          }}
+          onSaveNetwork={() => {
+            saveSatellitePathNetwork(network.nodes, network.edges);
+            showAdminToast('Saved road network to browser storage');
+          }}
+          isAddNodeMode={isAddNodeMode}
+          onToggleAddNodeMode={setIsAddNodeMode}
+          isConnectMode={isConnectMode}
+          onToggleConnectMode={setIsConnectMode}
+          onImportNetwork={(importedNodes, importedEdges) => {
+            setNetwork({ nodes: importedNodes, edges: importedEdges });
+            saveSatellitePathNetwork(importedNodes, importedEdges);
+            showAdminToast(`Imported ${importedNodes.length} nodes and ${importedEdges.length} edges`);
           }}
         />
       )}
 
-      {/* 10. Admin Indoor Editor for Buildings, Floors, Rooms, and Corridors (Requirement 6) */}
+      {/* 8. Kumbah Hostel Indoor Navigator or Generic Modal */}
+      {isIndoorModalOpen && (activeIndoorBuildingId === 'kumba_hostel' || activeIndoorBuildingId === 'kumbah_hostel') && (
+        <KumbahHostelNavigator
+          isOpen={isIndoorModalOpen}
+          onClose={() => setIsIndoorModalOpen(false)}
+          building={
+            indoorBuildings.find(b => b.id === 'kumba_hostel' || b.id === 'kumbah_hostel') ||
+            indoorBuildings[0]
+          }
+          initialRoomId={selectedRoomInfo?.room?.id}
+          initialFloorId={activeIndoorFloorId || undefined}
+          wheelchairOnly={wheelchairOnly}
+          onToggleWheelchair={setWheelchairOnly}
+          onOpenAdminEditor={() => setIsAdminIndoorOpen(true)}
+          onSwitchToCampusMap={() => setIsIndoorModalOpen(false)}
+        />
+      )}
+
+      {isIndoorModalOpen && activeIndoorBuildingId !== 'kumba_hostel' && activeIndoorBuildingId !== 'kumbah_hostel' && (
+        <IndoorNavigationModal
+          isOpen={isIndoorModalOpen}
+          onClose={() => setIsIndoorModalOpen(false)}
+          buildings={indoorBuildings}
+          initialBuildingId={activeIndoorBuildingId || 'kumba_hostel'}
+          initialFloorId={activeIndoorFloorId || undefined}
+          targetRoom={selectedRoomInfo?.room || null}
+          activeIndoorRoute={null}
+          wheelchairOnly={wheelchairOnly}
+          onToggleWheelchair={setWheelchairOnly}
+          onOpenAdminEditor={() => setIsAdminIndoorOpen(true)}
+        />
+      )}
+
+      {/* 9. Admin Indoor Floor Plan Editor */}
       {isAdminIndoorOpen && (
         <AdminIndoorEditor
           isOpen={isAdminIndoorOpen}
           onClose={() => setIsAdminIndoorOpen(false)}
           buildings={indoorBuildings}
-          onSaveBuildings={handleSaveIndoorBuildings}
-          onResetBuildings={handleResetIndoorBuildings}
-          onExportJson={() => {
-            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({ buildings: indoorBuildings }, null, 2));
-            const dl = document.createElement('a');
-            dl.setAttribute('href', dataStr);
-            dl.setAttribute('download', 'mewar_indoor_data.json');
-            dl.click();
+          onSaveBuildings={updated => {
+            setIndoorBuildings(updated);
+            saveIndoorBuildings(updated);
+            showAdminToast('Saved indoor floor plans');
+          }}
+          onResetBuildings={() => {
+            if (confirm('Reset indoor buildings to default?')) {
+              resetIndoorBuildings().then(reset => {
+                setIndoorBuildings(reset);
+                showAdminToast('Reset indoor floor plans');
+              });
+            }
           }}
         />
+      )}
+
+      {/* 10. Admin Location Editor Modals */}
+      {isAdminLocationModalOpen && mapMode === 'satellite' && (
+        <AdminSatelliteLocationModal
+          isOpen={isAdminLocationModalOpen}
+          onClose={() => setIsAdminLocationModalOpen(false)}
+          locations={satLocations}
+          selectedLocation={selectedSatLocation}
+          onSaveLocation={loc => {
+            setSatLocations(prev => {
+              const exists = prev.some(l => l.id === loc.id);
+              const next = exists ? prev.map(l => l.id === loc.id ? loc : l) : [...prev, loc];
+              saveSatelliteLocations(next);
+              return next;
+            });
+            showAdminToast(`Saved landmark marker: ${loc.name}`);
+          }}
+          onDeleteLocation={id => {
+            setSatLocations(prev => {
+              const next = prev.filter(l => l.id !== id);
+              saveSatelliteLocations(next);
+              return next;
+            });
+            showAdminToast('Deleted landmark marker');
+          }}
+          onResetAll={() => {
+            if (confirm('Reset satellite landmark markers to verified defaults?')) {
+              const reset = resetSatelliteLocations();
+              setSatLocations(reset);
+              showAdminToast('Reset landmark markers to defaults');
+            }
+          }}
+          onImportJson={imported => {
+            setSatLocations(imported);
+            saveSatelliteLocations(imported);
+            showAdminToast(`Imported ${imported.length} satellite markers`);
+          }}
+        />
+      )}
+
+      {isAdminLocationModalOpen && mapMode === 'osm' && (
+        <AdminLocationModal
+          isOpen={isAdminLocationModalOpen}
+          onClose={() => setIsAdminLocationModalOpen(false)}
+          locations={geoLocations}
+          selectedLocation={selectedGeoLocation}
+          onSaveLocation={loc => {
+            setGeoLocations(prev => {
+              const exists = prev.some(l => l.id === loc.id);
+              const next = exists ? prev.map(l => l.id === loc.id ? loc : l) : [...prev, loc];
+              saveCampusGeoLocations(next);
+              return next;
+            });
+            showAdminToast('Saved campus marker');
+          }}
+          onDeleteLocation={id => {
+            setGeoLocations(prev => {
+              const next = prev.filter(l => l.id !== id);
+              saveCampusGeoLocations(next);
+              return next;
+            });
+            showAdminToast('Deleted campus marker');
+          }}
+          onResetAll={() => {
+            if (confirm('Reset OSM markers to verified defaults?')) {
+              const reset = resetCampusGeoLocations();
+              setGeoLocations(reset);
+              showAdminToast('Reset markers');
+            }
+          }}
+          onImportJson={imported => {
+            setGeoLocations(imported);
+            saveCampusGeoLocations(imported);
+            showAdminToast(`Imported ${imported.length} markers`);
+          }}
+        />
+      )}
+
+      {/* 11. Admin Toast Notification */}
+      {adminToast && (
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 border border-amber-500/50 text-amber-200 px-4 py-2 rounded-xl text-xs font-bold shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-200">
+          {adminToast}
+        </div>
       )}
 
     </div>

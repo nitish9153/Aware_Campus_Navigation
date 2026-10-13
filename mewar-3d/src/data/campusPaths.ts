@@ -34,6 +34,9 @@ export interface PathRibbon {
 // Z: -80 (North hostels) to +90 (South auditorium)
 // ---------------------------------------------------------------------------
 export const CAMPUS_PATH_NODES: PathNode[] = [
+  // --- Highway Gate (Northwest) ---
+  { id: 'node_gate_1', name: 'Main Gate (Gate No. 1)', x: -34, z: -85, isEntrance: true, buildingId: 'main_gate' },
+
   // --- North Zone: Girls Hostel, Hospital, Sanga, Kumbah ---
   { id: 'node_ent_girls_hostel', name: 'Girls Hostel Entrance', x: -26, z: -63, isEntrance: true, buildingId: 'girls_hostel' },
   { id: 'node_junc_north_road_girls', name: 'West Road - Girls Hostel Branch', x: -34, z: -63 },
@@ -44,6 +47,7 @@ export const CAMPUS_PATH_NODES: PathNode[] = [
   { id: 'node_junc_north_sanga', name: 'North Hostel Concourse', x: 14, z: -63 },
   { id: 'node_junc_kumbah_north', name: 'Kumbah North Path', x: 24, z: -63 },
   { id: 'node_ent_kumbah', name: 'Kumbah Hostel Entrance', x: 24, z: -45, isEntrance: true, buildingId: 'kumbah_hostel' },
+  { id: 'node_ent_library', name: 'Central Library Entrance', x: -4, z: -8, isEntrance: true, buildingId: 'central_library' },
 
   // --- Upper-Mid Zone: Guest House, Park, Temple ---
   { id: 'node_junc_west_road_guesthouse', name: 'West Road - Guest House Turn', x: -34, z: -45 },
@@ -128,6 +132,9 @@ export const CAMPUS_PATH_EDGES: PathEdge[] = [
   { id: 'e_road_6', source: 'node_junc_west_road_cricket', target: 'node_junc_south_road_turn', distance: 28, isAccessible: true, description: 'West Road Southern Curve' },
   { id: 'e_road_7', source: 'node_junc_south_road_turn', target: 'node_junc_auditorium_plaza', distance: 29, isAccessible: true, description: 'South Road to Auditorium Plaza' },
 
+  // Highway Gate Connector
+  { id: 'e_gate1_north_road', source: 'node_gate_1', target: 'node_junc_north_road_girls', distance: 22, isAccessible: true, description: 'Main Gate avenue leading south to Girls Hostel turn' },
+
   // North Sector White Paths (Girls Hostel -> Hospital -> Sanga -> Kumbah)
   { id: 'e_p_road_girls', source: 'node_junc_north_road_girls', target: 'node_ent_girls_hostel', distance: 8, isAccessible: true, description: 'Entrance path to Girls Hostel' },
   { id: 'e_p_girls_hosp', source: 'node_ent_girls_hostel', target: 'node_junc_girls_hospital', distance: 8, isAccessible: true, description: 'Paved walk from Girls Hostel' },
@@ -138,6 +145,10 @@ export const CAMPUS_PATH_EDGES: PathEdge[] = [
   { id: 'e_p_sanga_kumbah', source: 'node_junc_north_sanga', target: 'node_junc_kumbah_north', distance: 10, isAccessible: true, description: 'Walkway to Kumbah Hostel' },
   { id: 'e_p_kumbah_ent', source: 'node_junc_kumbah_north', target: 'node_ent_kumbah', distance: 18, isAccessible: true, description: 'Path to Kumbah Hostel' },
   { id: 'e_p_kumbah_south', source: 'node_ent_kumbah', target: 'node_junc_kumbah_south', distance: 10, isAccessible: true, description: 'Kumbah Hostel South Concourse' },
+
+  // Library connectors
+  { id: 'e_p_library_eng', source: 'node_ent_library', target: 'node_junc_eng_east_walk', distance: 7, isAccessible: true, description: 'Paved plaza walk between Central Library and Engineering East' },
+  { id: 'e_p_library_univ', source: 'node_ent_library', target: 'node_ent_mewar_univ', distance: 14, isAccessible: true, description: 'Walkway from Central Library to Mewar University' },
 
   // Upper-Mid Zone (Guest House, Park, Temple)
   { id: 'e_p_road_guesth', source: 'node_junc_west_road_guesthouse', target: 'node_ent_guest_house', distance: 9, isAccessible: true, description: 'Guest House entrance drive' },

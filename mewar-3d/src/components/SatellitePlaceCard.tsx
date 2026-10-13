@@ -102,10 +102,18 @@ export const SatellitePlaceCard: React.FC<SatellitePlaceCardProps> = ({
         {onExploreIndoor && (
           <button
             onClick={() => onExploreIndoor(location)}
-            className="w-full py-2.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            className={`w-full py-2.5 px-3 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] ${
+              location.id === 'kumba_hostel' || location.aliases?.includes('Kumbah Hostel')
+                ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 shadow-cyan-600/25 ring-1 ring-cyan-400/50'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-600/20'
+            }`}
           >
-            <Building className="w-4 h-4" />
-            <span>View Indoor Floors, Rooms & Corridors</span>
+            <Building className="w-4 h-4 text-cyan-300" />
+            <span>
+              {location.id === 'kumba_hostel' || location.aliases?.includes('Kumbah Hostel')
+                ? '🏨 Enter Kumbah Hostel — Ground Floor (Rooms 1–16)'
+                : 'View Indoor Floors, Rooms & Corridors'}
+            </span>
           </button>
         )}
 

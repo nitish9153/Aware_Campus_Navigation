@@ -56,8 +56,11 @@ export const SatelliteSearchBar: React.FC<SatelliteSearchBarProps> = ({
 
   // Suggestions: Outdoor Landmarks + Indoor Rooms
   const suggestions = useMemo(() => {
-    if (!query.trim()) return { locMatches: [], roomMatches: [] };
     const q = query.toLowerCase().trim();
+    if (!q) {
+      // Default to showing campus locations when searching
+      return { locMatches: locations.slice(0, 13), roomMatches: [] };
+    }
 
     // 1. Outdoor locations
     const locMatches = locations.filter(loc => {
@@ -68,7 +71,7 @@ export const SatelliteSearchBar: React.FC<SatelliteSearchBarProps> = ({
       const matchDesc = loc.description.toLowerCase().includes(q);
       const matchAliases = loc.aliases?.some(a => a.toLowerCase().includes(q));
       return matchName || matchHindi || matchCat || matchCode || matchDesc || matchAliases;
-    }).slice(0, 5);
+    }).slice(0, 8);
 
     // 2. Indoor rooms across all buildings and floors
     const roomMatches: {

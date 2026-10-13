@@ -8,12 +8,12 @@ export interface GeoLocation {
   id: string;
   name: string;
   code: string;
-  category: 'Hostel' | 'Academic' | 'Dining' | 'Sports' | 'Medical' | 'Worship' | 'Green Area' | 'Administration';
+  category: 'Hostel' | 'Academic' | 'Dining' | 'Sports' | 'Medical' | 'Worship' | 'Green Area' | 'Administration' | 'Gate' | 'Library';
   description: string;
   lat: number;
   lng: number;
   color: string;
-  iconType: 'bed' | 'cross' | 'utensils' | 'tree' | 'building' | 'gear' | 'graduation' | 'monitor' | 'ball' | 'cricket';
+  iconType: 'bed' | 'cross' | 'utensils' | 'tree' | 'building' | 'gear' | 'graduation' | 'monitor' | 'ball' | 'cricket' | 'gate' | 'book';
   wheelchairAccessible: boolean;
   rampAvailable: boolean;
   elevatorAvailable: boolean;
@@ -60,6 +60,46 @@ export function mToCoords(xMeters: number, zMeters: number): [number, number] {
 // 1. ALL 20+ CAMPUS LANDMARKS (Georeferenced)
 // ---------------------------------------------------------------------------
 export const MEWAR_GEO_LOCATIONS: GeoLocation[] = [
+  {
+    id: 'main_gate',
+    name: 'Main Gate',
+    code: 'GATE_1',
+    category: 'Gate',
+    description: 'Northern main campus entrance gate linking directly to the NH-79 national highway, with 24/7 security kiosk, barrier control, and visitor registration.',
+    lat: mToCoords(-34, -85)[0],
+    lng: mToCoords(-34, -85)[1],
+    color: '#0284c7',
+    iconType: 'gate',
+    wheelchairAccessible: true,
+    rampAvailable: true,
+    elevatorAvailable: false,
+    brailleSignage: false,
+    facilities: ['Security Checkpost', 'Tactile Paved Pathway', 'Visitor Parking Area', 'Information Board'],
+    entranceNodeId: 'node_gate_1',
+    buildingFootprint: [
+      mToCoords(-39, -89), mToCoords(-29, -89), mToCoords(-29, -81), mToCoords(-39, -81)
+    ]
+  },
+  {
+    id: 'central_library',
+    name: 'Central Library',
+    code: 'LIB',
+    category: 'Library',
+    description: 'Maharana Pratap Central University Library with multi-level book stacks, reading rooms, digital reference lab, and quiet research zones.',
+    lat: mToCoords(-4, -8)[0],
+    lng: mToCoords(-4, -8)[1],
+    color: '#8b5cf6',
+    iconType: 'book',
+    wheelchairAccessible: true,
+    rampAvailable: true,
+    elevatorAvailable: true,
+    brailleSignage: true,
+    facilities: ['Level Ramp Entrance', 'Elevator to 1st Floor', 'Braille Reference Texts', 'Assistive Tech Stations'],
+    entranceNodeId: 'node_ent_library',
+    buildingFootprint: [
+      mToCoords(-10, -14), mToCoords(2, -14), mToCoords(2, -2), mToCoords(-10, -2)
+    ]
+  },
   {
     id: 'girls_hostel',
     name: 'Girls Hostel',
@@ -551,3 +591,60 @@ export const GEO_PATH_EDGES: GeoPathEdge[] = CAMPUS_PATH_EDGES.map(edge => ({
   isAccessible: edge.isAccessible,
   description: edge.description
 }));
+
+// ---------------------------------------------------------------------------
+// 6. PERSISTENCE & ADMIN SYNC UTILITIES
+// ---------------------------------------------------------------------------
+export const GEO_LOCATIONS_STORAGE_KEY = 'accesspath_mewar_geo_locations_v1';
+export const BACKEND_LOCATIONS_API = 'http://127.0.0.1:8000/api/mewar/locations';
+
+export function loadCampusGeoLocations(): GeoLocation[] {
+  try {
+    const raw = localStorage.getItem(GEO_LOCATIONS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to parse cached geo locations', e);
+  }
+  return MEWAR_GEO_LOCATIONS;
+}
+
+export function saveCampusGeoLocations(locations: GeoLocation[]): void {
+  try {
+    localStorage.setItem(GEO_LOCATIONS_STORAGE_KEY, JSON.stringify(locations));
+    // Asynchronously synchronize to backend API
+    fetch(BACKEND_LOCATIONS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ locations })
+    }).catch(err => console.warn('Backend locations sync failed:', err));
+  } catch (e) {
+    console.error('Failed to save geo locations', e);
+  }
+}
+
+export function resetCampusGeoLocations(): GeoLocation[] {
+  try {
+    localStorage.removeItem(GEO_LOCATIONS_STORAGE_KEY);
+    fetch(`${BACKEND_LOCATIONS_API}/reset`, { method: 'POST' }).catch(() => {});
+  } catch (e) {}
+  return MEWAR_GEO_LOCATIONS;
+}
+
+export async function fetchBackendCampusGeoLocations(): Promise<GeoLocation[] | null> {
+  try {
+    const res = await fetch(BACKEND_LOCATIONS_API);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && Array.isArray(data.locations) && data.locations.length > 0) {
+        localStorage.setItem(GEO_LOCATIONS_STORAGE_KEY, JSON.stringify(data.locations));
+        return data.locations;
+      }
+    }
+  } catch (e) {}
+  return null;
+}

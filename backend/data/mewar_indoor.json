@@ -1,0 +1,69 @@
+{
+  "buildings": [
+    {
+      "id": "kumba_hostel",
+      "name": "Kumbah Hostel",
+      "category": "Hostel",
+      "description": "Maharana Kumbha Hostel — Premier multi-story student residence block in Mewar University. Features ground floor Rooms 1–16, central corridor, and washrooms at both ends.",
+      "outdoorEntranceNodeId": "node_ent_kumbah",
+      "outdoorBuildingId": "kumbah_hostel",
+      "floors": [
+        {
+          "id": "fl_kumba_0",
+          "buildingId": "kumba_hostel",
+          "floorNumber": 0,
+          "floorName": "Ground Floor",
+          "code": "GF",
+          "floorPlanImageUrl": "/static/images/kumbah-ground-floor.png",
+          "corridorNodes": [
+            { "id": "node_c_kumba_gf_ent", "floorId": "fl_kumba_0", "type": "entrance", "label": "Hostel Ground Floor Entrance", "x": 53.7, "y": 27.1, "isAccessible": true },
+            { "id": "node_c_kumba_gf_junction", "floorId": "fl_kumba_0", "type": "corridor", "label": "Central Corridor Entrance Cross", "x": 56.2, "y": 38.1, "isAccessible": true },
+            { "id": "node_c_kumba_gf_washroom_w", "floorId": "fl_kumba_0", "type": "corridor", "label": "West Washroom Entrance (Left End)", "x": 16.5, "y": 58.5, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_1_2", "floorId": "fl_kumba_0", "type": "corridor", "label": "West Corridor (Rooms 1 & 2)", "x": 27.8, "y": 57.9, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_3_4", "floorId": "fl_kumba_0", "type": "corridor", "label": "West Corridor (Rooms 3 & 4)", "x": 37.1, "y": 53.5, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_5_6", "floorId": "fl_kumba_0", "type": "corridor", "label": "West Corridor (Rooms 5 & 6)", "x": 45.9, "y": 49.8, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_7_8", "floorId": "fl_kumba_0", "type": "corridor", "label": "Mid-West Corridor (Rooms 7 & 8)", "x": 54.7, "y": 45.4, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_9_10", "floorId": "fl_kumba_0", "type": "corridor", "label": "Mid-East Corridor (Rooms 9 & 10)", "x": 68.4, "y": 39.6, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_11_12", "floorId": "fl_kumba_0", "type": "corridor", "label": "East Corridor (Rooms 11 & 12)", "x": 76.7, "y": 35.2, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_13_14", "floorId": "fl_kumba_0", "type": "corridor", "label": "East Corridor (Rooms 13 & 14)", "x": 84.5, "y": 31.5, "isAccessible": true },
+            { "id": "node_c_kumba_gf_sp_15_16", "floorId": "fl_kumba_0", "type": "corridor", "label": "East Corridor (Rooms 15 & 16)", "x": 92.3, "y": 27.8, "isAccessible": true },
+            { "id": "node_c_kumba_gf_washroom_e", "floorId": "fl_kumba_0", "type": "corridor", "label": "East Washroom Entrance (Right End)", "x": 93.3, "y": 26.4, "isAccessible": true }
+          ],
+          "corridorEdges": [
+            { "id": "e_kumba_gf_ent_junc", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_ent", "target": "node_c_kumba_gf_junction", "distanceMeters": 4, "isAccessible": true, "description": "Hostel Main Entrance to Central Corridor" },
+            { "id": "e_kumba_gf_junc_w", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_junction", "target": "node_c_kumba_gf_sp_7_8", "distanceMeters": 3, "isAccessible": true, "description": "Corridor heading West toward Rooms 1–8" },
+            { "id": "e_kumba_gf_sp_7_5", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_7_8", "target": "node_c_kumba_gf_sp_5_6", "distanceMeters": 4, "isAccessible": true, "description": "Central Corridor past Rooms 5 & 6" },
+            { "id": "e_kumba_gf_sp_5_3", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_5_6", "target": "node_c_kumba_gf_sp_3_4", "distanceMeters": 4, "isAccessible": true, "description": "Central Corridor past Rooms 3 & 4" },
+            { "id": "e_kumba_gf_sp_3_1", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_3_4", "target": "node_c_kumba_gf_sp_1_2", "distanceMeters": 4, "isAccessible": true, "description": "Central Corridor past Rooms 1 & 2" },
+            { "id": "e_kumba_gf_sp_1_wash", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_1_2", "target": "node_c_kumba_gf_washroom_w", "distanceMeters": 5, "isAccessible": true, "description": "West Corridor approach to West Washroom" },
+            { "id": "e_kumba_gf_junc_e", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_junction", "target": "node_c_kumba_gf_sp_9_10", "distanceMeters": 4, "isAccessible": true, "description": "Corridor heading East toward Rooms 9–16" },
+            { "id": "e_kumba_gf_sp_9_11", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_9_10", "target": "node_c_kumba_gf_sp_11_12", "distanceMeters": 4, "isAccessible": true, "description": "Central Corridor past Rooms 11 & 12" },
+            { "id": "e_kumba_gf_sp_11_13", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_11_12", "target": "node_c_kumba_gf_sp_13_14", "distanceMeters": 4, "isAccessible": true, "description": "Central Corridor past Rooms 13 & 14" },
+            { "id": "e_kumba_gf_sp_13_15", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_13_14", "target": "node_c_kumba_gf_sp_15_16", "distanceMeters": 4, "isAccessible": true, "description": "Central Corridor past Rooms 15 & 16" },
+            { "id": "e_kumba_gf_sp_15_wash", "floorId": "fl_kumba_0", "source": "node_c_kumba_gf_sp_15_16", "target": "node_c_kumba_gf_washroom_e", "distanceMeters": 3, "isAccessible": true, "description": "East Corridor approach to East Washroom" }
+          ],
+          "rooms": [
+            { "id": "room_kumba_1", "roomNumber": "1", "name": "Room 1 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 1 in North-West wing of Kumbah Hostel Ground Floor.", "x": 13.5, "y": 35.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 25.2, "y": 52.8 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_1_2", "isAccessible": true, "accessibilityNotes": "Step-free level threshold, 900mm wide doorway" },
+            { "id": "room_kumba_3", "roomNumber": "3", "name": "Room 3 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 3 along the top corridor row.", "x": 23.5, "y": 31.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 34.8, "y": 48.4 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_3_4", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_5", "roomNumber": "5", "name": "Room 5 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 5 along the top corridor row.", "x": 32.5, "y": 27.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 43.5, "y": 44.7 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_5_6", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_7", "roomNumber": "7", "name": "Room 7 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 7 situated immediately west of the hostel main entrance.", "x": 41.5, "y": 23.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 52.0, "y": 40.3 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_7_8", "isAccessible": true, "accessibilityNotes": "Step-free level doorway adjacent to entrance foyer" },
+            { "id": "room_kumba_9", "roomNumber": "9", "name": "Room 9 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 9 situated immediately east of the hostel main entrance.", "x": 55.5, "y": 18.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 66.4, "y": 34.5 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_9_10", "isAccessible": true, "accessibilityNotes": "Step-free level doorway" },
+            { "id": "room_kumba_11", "roomNumber": "11", "name": "Room 11 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 11 along the top corridor row.", "x": 64.5, "y": 15.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 74.2, "y": 30.8 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_11_12", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_13", "roomNumber": "13", "name": "Room 13 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 13 along the top corridor row.", "x": 72.5, "y": 11.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 81.8, "y": 27.1 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_13_14", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_15", "roomNumber": "15", "name": "Room 15 (Top Row)", "type": "Hostel Room", "description": "Resident Student Room 15 in the North-East wing near East Washroom.", "x": 80.5, "y": 8.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 89.8, "y": 24.6 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_15_16", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_2", "roomNumber": "2", "name": "Room 2 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 2 in the South-West wing of Kumbah Hostel Ground Floor.", "x": 20.0, "y": 60.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 30.8, "y": 63.8 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_1_2", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_4", "roomNumber": "4", "name": "Room 4 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 4 along the bottom corridor row.", "x": 29.5, "y": 56.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 39.6, "y": 59.4 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_3_4", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_6", "roomNumber": "6", "name": "Room 6 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 6 along the bottom corridor row.", "x": 39.0, "y": 51.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 48.6, "y": 55.0 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_5_6", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_8", "roomNumber": "8", "name": "Room 8 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 8 directly opposite the entrance corridor.", "x": 48.5, "y": 47.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 57.6, "y": 50.6 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_7_8", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_10", "roomNumber": "10", "name": "Room 10 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 10 along the bottom corridor row.", "x": 60.5, "y": 42.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 70.8, "y": 44.7 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_9_10", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_12", "roomNumber": "12", "name": "Room 12 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 12 along the bottom corridor row.", "x": 70.0, "y": 37.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 79.3, "y": 40.3 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_11_12", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_14", "roomNumber": "14", "name": "Room 14 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 14 along the bottom corridor row.", "x": 78.5, "y": 33.0, "width": 9.5, "height": 17.5, "doorLocation": { "x": 87.4, "y": 35.9 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_13_14", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_16", "roomNumber": "16", "name": "Room 16 (Bottom Row)", "type": "Hostel Room", "description": "Resident Student Room 16 in the South-East wing near East Washroom.", "x": 87.0, "y": 28.5, "width": 9.5, "height": 17.5, "doorLocation": { "x": 95.2, "y": 31.5 }, "doorCorridorNodeId": "node_c_kumba_gf_sp_15_16", "isAccessible": true, "accessibilityNotes": "Step-free doorway" },
+            { "id": "room_kumba_washroom_west", "roomNumber": "W-WR", "name": "West Washroom (Left End)", "type": "Restroom", "description": "Communal restrooms and washroom facility located at the West end of the ground floor corridor.", "x": 2.0, "y": 52.0, "width": 14.0, "height": 26.0, "doorLocation": { "x": 16.5, "y": 58.5 }, "doorCorridorNodeId": "node_c_kumba_gf_washroom_w", "isAccessible": true, "accessibilityNotes": "Step-free level entry, accessible fixtures" },
+            { "id": "room_kumba_washroom_east", "roomNumber": "E-WR", "name": "East Washroom (Right End)", "type": "Restroom", "description": "Communal restrooms and washroom facility located at the East end of the ground floor corridor.", "x": 90.0, "y": 13.0, "width": 9.0, "height": 20.0, "doorLocation": { "x": 92.5, "y": 26.8 }, "doorCorridorNodeId": "node_c_kumba_gf_washroom_e", "isAccessible": true, "accessibilityNotes": "Step-free entry, accessible basin" }
+          ]
+        }
+      ]
+    }
+  ]
+}

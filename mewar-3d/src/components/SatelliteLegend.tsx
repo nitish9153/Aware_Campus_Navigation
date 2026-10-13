@@ -110,14 +110,28 @@ export const SatelliteLegend: React.FC<SatelliteLegendProps> = ({
             );
           })}
 
-          {/* Pedestrian Pathways indicator */}
-          <div className="pt-2 border-t border-slate-100 mt-2">
-            <div className="px-2 py-1 flex items-center justify-between text-xs text-slate-600">
+          {/* Pathway Network Legends */}
+          <div className="pt-2.5 border-t border-slate-200 mt-2 space-y-1.5">
+            <div className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-1">
+              Path & Route Network
+            </div>
+            <div className="px-2 py-1.5 rounded-lg bg-red-50/70 border border-red-200/80 flex items-center justify-between text-xs text-red-900">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-1.5 bg-blue-600 rounded-full"></div>
-                <span className="text-[11px] font-medium">Internal Paved Walkway</span>
+                <div className="w-6 h-1.5 bg-red-500 rounded-full shadow-sm"></div>
+                <span className="text-[11px] font-bold">Allowed Walking Paths</span>
               </div>
-              <span className="text-[10px] text-emerald-600 font-bold">♿ Step-Free</span>
+              <span className="text-[10px] text-red-700 font-extrabold uppercase">Red Line</span>
+            </div>
+            <div className="px-2 py-1.5 rounded-lg bg-sky-50/70 border border-sky-200/80 flex items-center justify-between text-xs text-sky-900">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-2 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full shadow-sm ring-1 ring-cyan-400"></div>
+                <span className="text-[11px] font-bold">Active Selected Route</span>
+              </div>
+              <span className="text-[10px] text-blue-700 font-extrabold uppercase">Cyan / Blue</span>
+            </div>
+            <div className="px-2 py-1 flex items-center justify-between text-[11px] text-slate-600">
+              <span className="font-medium text-slate-500">Accessible Mode</span>
+              <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">♿ Step-Free Certified</span>
             </div>
           </div>
         </div>

@@ -108,36 +108,63 @@ function dijkstraSingleFloor(
  * Calculates verified indoor route from Building Entrance to Destination Room Door,
  * handling multi-floor navigation via Elevators or Stairs.
  */
+/**
+ * Calculates verified indoor route between any start point (Entrance, Room, Checkpoint)
+ * and destination (Room, Washroom, Entrance), handling multi-floor navigation via Elevators or Stairs.
+ */
 export function calculateIndoorRoute(
   building: IndoorBuilding,
   destRoomId: string,
-  wheelchairOnly: boolean = false
+  wheelchairOnly: boolean = false,
+  startPointId?: string
 ): IndoorRouteResult {
-  // 1. Locate destination room and floor
+  // 1. Locate destination room or destination corridor node
   let destFloor: BuildingFloor | null = null;
   let targetRoom: FloorRoom | null = null;
+  let targetCorridorNode: FloorCorridorNode | null = null;
 
   for (const floor of building.floors) {
-    const found = floor.rooms.find(r => r.id === destRoomId || r.roomNumber === destRoomId);
-    if (found) {
+    const foundRoom = floor.rooms.find(
+      r => r.id === destRoomId || r.roomNumber.toLowerCase() === destRoomId.toLowerCase()
+    );
+    if (foundRoom) {
       destFloor = floor;
-      targetRoom = found;
+      targetRoom = foundRoom;
+      break;
+    }
+
+    const foundNode = floor.corridorNodes.find(n => n.id === destRoomId);
+    if (foundNode) {
+      destFloor = floor;
+      targetCorridorNode = foundNode;
       break;
     }
   }
 
-  if (!destFloor || !targetRoom) {
+  // If destination is "entrance", locate building entrance
+  if (!destFloor && (destRoomId === 'entrance' || destRoomId.toLowerCase().includes('entrance'))) {
+    for (const floor of building.floors) {
+      const entNode = floor.corridorNodes.find(n => n.type === 'entrance');
+      if (entNode) {
+        destFloor = floor;
+        targetCorridorNode = entNode;
+        break;
+      }
+    }
+  }
+
+  if (!destFloor || (!targetRoom && !targetCorridorNode)) {
     return {
       status: 'unverified',
       isVerified: false,
-      message: 'Room not found in building',
+      message: 'Destination not found in building',
       buildingId: building.id,
       startFloorId: '',
       destFloorId: '',
       destRoom: {
         id: '',
         roomNumber: '',
-        name: '',
+        name: 'Invalid Destination',
         type: 'Other',
         x: 0,
         y: 0,
@@ -151,35 +178,61 @@ export function calculateIndoorRoute(
       floorPaths: [],
       steps: [],
       isFullyAccessible: false,
-      warnings: ['Room could not be located in this building.']
+      warnings: ['Selected room or destination could not be located in this building layout.']
     };
   }
 
-  // 2. Identify Entrance Floor (usually Ground Floor number 0, or lowest floor with entrance node)
-  let entranceFloor: BuildingFloor | null = null;
-  let entranceNode: FloorCorridorNode | null = null;
+  // 2. Identify Start Floor and Start Node
+  let startFloor: BuildingFloor | null = null;
+  let startNode: FloorCorridorNode | null = null;
+  let startRoom: FloorRoom | null = null;
 
-  for (const floor of building.floors) {
-    const ent = floor.corridorNodes.find(n => n.type === 'entrance');
-    if (ent) {
-      entranceFloor = floor;
-      entranceNode = ent;
-      break;
+  if (startPointId && startPointId !== 'entrance') {
+    // Check if startPointId is a room
+    for (const floor of building.floors) {
+      const sRoom = floor.rooms.find(
+        r => r.id === startPointId || r.roomNumber.toLowerCase() === startPointId.toLowerCase()
+      );
+      if (sRoom) {
+        startFloor = floor;
+        startRoom = sRoom;
+        startNode = floor.corridorNodes.find(n => n.id === sRoom.doorCorridorNodeId) || null;
+        break;
+      }
+
+      const sNode = floor.corridorNodes.find(n => n.id === startPointId);
+      if (sNode) {
+        startFloor = floor;
+        startNode = sNode;
+        break;
+      }
     }
   }
 
-  if (!entranceFloor || !entranceNode) {
-    // Fall back to ground floor
-    entranceFloor = building.floors.find(f => f.floorNumber === 0) || building.floors[0];
-    entranceNode = entranceFloor.corridorNodes[0];
+  // If no start node resolved, default to Entrance on the ground floor
+  if (!startFloor || !startNode) {
+    for (const floor of building.floors) {
+      const ent = floor.corridorNodes.find(n => n.type === 'entrance');
+      if (ent) {
+        startFloor = floor;
+        startNode = ent;
+        break;
+      }
+    }
+    if (!startFloor || !startNode) {
+      startFloor = building.floors.find(f => f.floorNumber === 0) || building.floors[0];
+      startNode = startFloor.corridorNodes[0];
+    }
   }
 
-  // CASE A: Destination is on the SAME floor as the entrance
-  if (entranceFloor.id === destFloor.id) {
+  const destNodeId = targetRoom ? targetRoom.doorCorridorNodeId : targetCorridorNode!.id;
+
+  // CASE A: Destination is on the SAME floor as start
+  if (startFloor.id === destFloor.id) {
     const pathResult = dijkstraSingleFloor(
-      entranceFloor,
-      entranceNode.id,
-      targetRoom.doorCorridorNodeId,
+      startFloor,
+      startNode.id,
+      destNodeId,
       wheelchairOnly
     );
 
@@ -187,36 +240,61 @@ export function calculateIndoorRoute(
       return {
         status: 'unverified',
         isVerified: false,
-        message: 'Route needs verification: Corridor connection not found',
+        message: 'Route needs verification: Corridor segment is not connected',
         buildingId: building.id,
-        startFloorId: entranceFloor.id,
+        startFloorId: startFloor.id,
         destFloorId: destFloor.id,
-        destRoom: targetRoom,
+        destRoom: targetRoom || {
+          id: targetCorridorNode!.id,
+          roomNumber: 'ENT',
+          name: targetCorridorNode!.label || 'Entrance',
+          type: 'Other',
+          x: targetCorridorNode!.x,
+          y: targetCorridorNode!.y,
+          width: 0,
+          height: 0,
+          doorLocation: { x: targetCorridorNode!.x, y: targetCorridorNode!.y },
+          doorCorridorNodeId: targetCorridorNode!.id,
+          isAccessible: true
+        },
         totalIndoorDistanceMeters: 0,
         floorPaths: [],
         steps: [],
         isFullyAccessible: false,
-        warnings: ['Route needs verification: Walkable corridor path to this room door is unverified or blocked.']
+        warnings: ['Route needs verification: Walkable corridor path between these locations is not connected or verified.']
       };
     }
 
     const nodeMap = new Map<string, FloorCorridorNode>(
-      entranceFloor.corridorNodes.map(n => [n.id, n])
+      startFloor.corridorNodes.map(n => [n.id, n])
     );
 
-    const coordinates: [number, number][] = pathResult.nodeIds.map(nid => {
+    const coordinates: [number, number][] = [];
+
+    // If starting from a room, add door location first
+    if (startRoom) {
+      coordinates.push([startRoom.doorLocation.x, startRoom.doorLocation.y]);
+    }
+
+    pathResult.nodeIds.forEach(nid => {
       const n = nodeMap.get(nid);
-      return n ? [n.x, n.y] : [0, 0];
+      if (n) coordinates.push([n.x, n.y]);
     });
 
-    // Append door location at the end
-    coordinates.push([targetRoom.doorLocation.x, targetRoom.doorLocation.y]);
+    // Append target door location at the end if target is a room
+    if (targetRoom) {
+      coordinates.push([targetRoom.doorLocation.x, targetRoom.doorLocation.y]);
+    }
 
     const steps: IndoorStep[] = [];
+    const startDesc = startRoom
+      ? `Room ${startRoom.roomNumber} (${startRoom.name})`
+      : startNode.label || 'Hostel Ground Floor Entrance';
+
     steps.push({
       stepNumber: 1,
-      floorName: entranceFloor.floorName,
-      instruction: `Enter ${building.name} via ${entranceNode.label || 'Main Entrance'} on ${entranceFloor.floorName}.`,
+      floorName: startFloor.floorName,
+      instruction: `Depart from ${startDesc} on ${startFloor.floorName}.`,
       distanceMeters: 0,
       isAccessible: true
     });
@@ -225,47 +303,76 @@ export function calculateIndoorRoute(
       const nextNode = nodeMap.get(pathResult.nodeIds[idx + 1]);
       steps.push({
         stepNumber: idx + 2,
-        floorName: entranceFloor.floorName,
+        floorName: startFloor.floorName,
         instruction: `Follow ${edge.description || 'corridor'} towards ${nextNode?.label || 'waypoint'} (${edge.distanceMeters}m).`,
         distanceMeters: edge.distanceMeters,
         isAccessible: edge.isAccessible
       });
     });
 
+    const targetDesc = targetRoom
+      ? `Room ${targetRoom.roomNumber} (${targetRoom.name})`
+      : targetCorridorNode?.label || 'Destination';
+
     steps.push({
       stepNumber: steps.length + 1,
-      floorName: entranceFloor.floorName,
-      instruction: `Arrive at Room ${targetRoom.roomNumber} (${targetRoom.name}).`,
+      floorName: startFloor.floorName,
+      instruction: `Arrive at ${targetDesc}.`,
       distanceMeters: 2,
-      isAccessible: targetRoom.isAccessible
+      isAccessible: targetRoom ? targetRoom.isAccessible : true
     });
 
     return {
       status: 'verified',
       isVerified: true,
-      message: 'Indoor route verified',
+      message: 'Indoor route verified along corridor',
       buildingId: building.id,
-      startFloorId: entranceFloor.id,
+      startFloorId: startFloor.id,
       destFloorId: destFloor.id,
-      destRoom: targetRoom,
-      totalIndoorDistanceMeters: pathResult.totalDistance + 2,
+      destRoom: targetRoom || {
+        id: targetCorridorNode!.id,
+        roomNumber: 'ENT',
+        name: targetCorridorNode!.label || 'Entrance',
+        type: 'Other',
+        x: targetCorridorNode!.x,
+        y: targetCorridorNode!.y,
+        width: 0,
+        height: 0,
+        doorLocation: { x: targetCorridorNode!.x, y: targetCorridorNode!.y },
+        doorCorridorNodeId: targetCorridorNode!.id,
+        isAccessible: true
+      },
+      totalIndoorDistanceMeters: pathResult.totalDistance + (targetRoom ? 2 : 0),
       floorPaths: [
         {
-          floorId: entranceFloor.id,
-          floorName: entranceFloor.floorName,
-          floorNumber: entranceFloor.floorNumber,
+          floorId: startFloor.id,
+          floorName: startFloor.floorName,
+          floorNumber: startFloor.floorNumber,
           coordinates,
           nodeIds: pathResult.nodeIds
         }
       ],
       steps,
-      isFullyAccessible: pathResult.edges.every(e => e.isAccessible) && targetRoom.isAccessible,
+      isFullyAccessible: pathResult.edges.every(e => e.isAccessible) && (targetRoom ? targetRoom.isAccessible : true),
       warnings: []
     };
   }
 
   // CASE B: MULTI-FLOOR NAVIGATION (Requires Elevator or Stairs)
-  // Find floor connector: prefer elevator (required if wheelchairOnly)
+  const resolvedDestRoom: FloorRoom = targetRoom || {
+    id: targetCorridorNode?.id || 'dest',
+    roomNumber: targetCorridorNode?.label || 'Destination',
+    name: targetCorridorNode?.label || 'Destination',
+    type: 'Other',
+    x: targetCorridorNode?.x || 50,
+    y: targetCorridorNode?.y || 50,
+    width: 0,
+    height: 0,
+    doorLocation: { x: targetCorridorNode?.x || 50, y: targetCorridorNode?.y || 50 },
+    doorCorridorNodeId: targetCorridorNode?.id || '',
+    isAccessible: true
+  };
+
   interface ConnectorPair {
     group: string;
     type: 'elevator' | 'stairs';
@@ -276,10 +383,10 @@ export function calculateIndoorRoute(
 
   const connectorPairs: ConnectorPair[] = [];
 
-  entranceFloor.corridorNodes.forEach(sNode => {
+  startFloor.corridorNodes.forEach((sNode: FloorCorridorNode) => {
     if (!sNode.connectorGroup) return;
     const matchingDestNode = destFloor!.corridorNodes.find(
-      dNode => dNode.connectorGroup === sNode.connectorGroup
+      (dNode: FloorCorridorNode) => dNode.connectorGroup === sNode.connectorGroup
     );
     if (matchingDestNode) {
       connectorPairs.push({
@@ -303,17 +410,17 @@ export function calculateIndoorRoute(
       isVerified: false,
       message: 'Route needs verification: No suitable floor connector found',
       buildingId: building.id,
-      startFloorId: entranceFloor.id,
+      startFloorId: startFloor.id,
       destFloorId: destFloor.id,
-      destRoom: targetRoom,
+      destRoom: resolvedDestRoom,
       totalIndoorDistanceMeters: 0,
       floorPaths: [],
       steps: [],
       isFullyAccessible: false,
       warnings: [
         wheelchairOnly
-          ? `Route needs verification: No verified step-free elevator connects ${entranceFloor.floorName} to ${destFloor.floorName}.`
-          : `Route needs verification: No verified stairs or elevator connects ${entranceFloor.floorName} to ${destFloor.floorName}.`
+          ? `Route needs verification: No verified step-free elevator connects ${startFloor.floorName} to ${destFloor.floorName}.`
+          : `Route needs verification: No verified stairs or elevator connects ${startFloor.floorName} to ${destFloor.floorName}.`
       ]
     };
   }
@@ -321,10 +428,10 @@ export function calculateIndoorRoute(
   // Select best connector (elevators prioritized)
   const bestConnector = availableConnectors.find(c => c.type === 'elevator') || availableConnectors[0];
 
-  // Route 1: Entrance Floor -> Connector on Entrance Floor
+  // Route 1: Start Floor -> Connector on Start Floor
   const pathPart1 = dijkstraSingleFloor(
-    entranceFloor,
-    entranceNode.id,
+    startFloor,
+    startNode.id,
     bestConnector.startNode.id,
     wheelchairOnly
   );
@@ -333,7 +440,7 @@ export function calculateIndoorRoute(
   const pathPart2 = dijkstraSingleFloor(
     destFloor,
     bestConnector.destNode.id,
-    targetRoom.doorCorridorNodeId,
+    resolvedDestRoom.doorCorridorNodeId,
     wheelchairOnly
   );
 
@@ -343,9 +450,9 @@ export function calculateIndoorRoute(
       isVerified: false,
       message: 'Route needs verification: Corridor segment disconnected',
       buildingId: building.id,
-      startFloorId: entranceFloor.id,
+      startFloorId: startFloor.id,
       destFloorId: destFloor.id,
-      destRoom: targetRoom,
+      destRoom: resolvedDestRoom,
       totalIndoorDistanceMeters: 0,
       floorPaths: [],
       steps: [],
@@ -356,7 +463,7 @@ export function calculateIndoorRoute(
 
   // Build coordinates for Floor 1
   const mapFloor1 = new Map<string, FloorCorridorNode>(
-    entranceFloor.corridorNodes.map(n => [n.id, n])
+    startFloor.corridorNodes.map(n => [n.id, n])
   );
   const coords1: [number, number][] = pathPart1.nodeIds.map(nid => {
     const n = mapFloor1.get(nid);
@@ -371,14 +478,14 @@ export function calculateIndoorRoute(
     const n = mapFloor2.get(nid);
     return n ? [n.x, n.y] : [0, 0];
   });
-  coords2.push([targetRoom.doorLocation.x, targetRoom.doorLocation.y]);
+  coords2.push([resolvedDestRoom.doorLocation.x, resolvedDestRoom.doorLocation.y]);
 
   // Construct turn-by-turn steps
   const steps: IndoorStep[] = [];
   steps.push({
     stepNumber: 1,
-    floorName: entranceFloor.floorName,
-    instruction: `Enter ${building.name} via ${entranceNode.label || 'Main Entrance'} on ${entranceFloor.floorName}.`,
+    floorName: startFloor.floorName,
+    instruction: `Depart from ${startNode.label || 'Start Point'} on ${startFloor.floorName}.`,
     distanceMeters: 0,
     isAccessible: true
   });
@@ -387,7 +494,7 @@ export function calculateIndoorRoute(
     const nextNode = mapFloor1.get(pathPart1.nodeIds[idx + 1]);
     steps.push({
       stepNumber: steps.length + 1,
-      floorName: entranceFloor.floorName,
+      floorName: startFloor.floorName,
       instruction: `Follow corridor to ${nextNode?.label || 'waypoint'} (${edge.distanceMeters}m).`,
       distanceMeters: edge.distanceMeters,
       isAccessible: edge.isAccessible
@@ -421,13 +528,13 @@ export function calculateIndoorRoute(
   steps.push({
     stepNumber: steps.length + 1,
     floorName: destFloor.floorName,
-    instruction: `Arrive at Room ${targetRoom.roomNumber} (${targetRoom.name}) on ${destFloor.floorName}.`,
+    instruction: `Arrive at Room ${resolvedDestRoom.roomNumber} (${resolvedDestRoom.name}) on ${destFloor.floorName}.`,
     distanceMeters: 2,
-    isAccessible: targetRoom.isAccessible
+    isAccessible: resolvedDestRoom.isAccessible
   });
 
   const floorChangeInstructions = [
-    `Floor Change: Transition from ${entranceFloor.floorName} to ${destFloor.floorName} using ${bestConnector.type === 'elevator' ? 'Elevator (Step-Free)' : 'Stairwell'}.`
+    `Floor Change: Transition from ${startFloor.floorName} to ${destFloor.floorName} using ${bestConnector.type === 'elevator' ? 'Elevator (Step-Free)' : 'Stairwell'}.`
   ];
 
   return {
@@ -435,15 +542,15 @@ export function calculateIndoorRoute(
     isVerified: true,
     message: 'Multi-floor indoor route verified',
     buildingId: building.id,
-    startFloorId: entranceFloor.id,
+    startFloorId: startFloor.id,
     destFloorId: destFloor.id,
-    destRoom: targetRoom,
+    destRoom: resolvedDestRoom,
     totalIndoorDistanceMeters: pathPart1.totalDistance + pathPart2.totalDistance + 10,
     floorPaths: [
       {
-        floorId: entranceFloor.id,
-        floorName: entranceFloor.floorName,
-        floorNumber: entranceFloor.floorNumber,
+        floorId: startFloor.id,
+        floorName: startFloor.floorName,
+        floorNumber: startFloor.floorNumber,
         coordinates: coords1,
         nodeIds: pathPart1.nodeIds
       },
@@ -461,7 +568,7 @@ export function calculateIndoorRoute(
       pathPart1.edges.every(e => e.isAccessible) &&
       bestConnector.isAccessible &&
       pathPart2.edges.every(e => e.isAccessible) &&
-      targetRoom.isAccessible,
+      resolvedDestRoom.isAccessible,
     warnings: !bestConnector.isAccessible ? ['Warning: This multi-floor route requires stairs.'] : []
   };
 }
