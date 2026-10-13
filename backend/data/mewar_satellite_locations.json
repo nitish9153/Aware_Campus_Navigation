@@ -1,0 +1,398 @@
+{
+  "locations": [
+    {
+      "id": "sanga_hostel",
+      "name": "Sanga Hostel",
+      "hindiName": "सांगा हॉस्टल",
+      "code": "SBH",
+      "category": "Hostel",
+      "description": "Premier residential hostel for male students located at the northern perimeter with study halls and common areas.",
+      "position": [
+        620,
+        224
+      ],
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": false,
+      "facilities": [
+        "Level Ramp Entrance",
+        "Accessible Ground Floor Rooms",
+        "Mess Access",
+        "Wi-Fi Lounge"
+      ],
+      "entranceNodeId": "node_sanga_ent",
+      "aliases": [
+        "Sanga Hostel",
+        "Sanga",
+        "Sanga Boys Hostel",
+        "SBH"
+      ]
+    },
+    {
+      "id": "kumba_hostel",
+      "name": "Kumbah Hostel",
+      "hindiName": "कुम्भा हॉस्टल",
+      "code": "KBH",
+      "category": "Hostel",
+      "description": "Multi-wing residence named after Maharana Kumbha. Features ground floor Rooms 1–16, central corridor, and washrooms at both ends.",
+      "position": [
+        550,
+        255
+      ],
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Dedicated Entrance Ramp",
+        "Ground Floor Accessible Restrooms",
+        "Common Room"
+      ],
+      "entranceNodeId": "node_kumba_ent",
+      "aliases": [
+        "Kumbah Hostel – Ground Floor",
+        "Kumbah Hostel",
+        "Kumba Hostel",
+        "Kumbha Hostel",
+        "Kumba",
+        "Kumbha",
+        "KBH"
+      ]
+    },
+    {
+      "id": "girls_hostel",
+      "name": "Girls Hostel",
+      "hindiName": "गर्ल्स हॉस्टल",
+      "code": "GH",
+      "category": "Hostel",
+      "description": "Secure multi-story residential block for female students with 24/7 security desk and inner courtyard.",
+      "position": [
+        565,
+        80
+      ],
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Automated Sliding Door",
+        "Step-Free Ramp",
+        "Elevator",
+        "24/7 Security"
+      ],
+      "entranceNodeId": "node_sanga_nw",
+      "aliases": [
+        "Girls Hostel",
+        "GH",
+        "Womens Hostel"
+      ]
+    },
+    {
+      "id": "hospital",
+      "name": "Hospital",
+      "hindiName": "अस्पताल / स्वास्थ्य केंद्र",
+      "code": "HOSP",
+      "category": "Medical",
+      "description": "University Health & Medical Center with round-the-clock emergency care, consultations, and ambulance station.",
+      "position": [
+        592,
+        135
+      ],
+      "color": "#ef4444",
+      "iconType": "cross",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Emergency Ambulance Bay",
+        "Wide Wheelchair Ramp",
+        "Medical Equipment",
+        "Pharmacy"
+      ],
+      "entranceNodeId": "node_sanga_north",
+      "aliases": [
+        "Hospital",
+        "Health Center",
+        "Medical Center",
+        "Clinic",
+        "Ambulance"
+      ]
+    },
+    {
+      "id": "gate_1",
+      "name": "Gate No. 1",
+      "code": "GATE_1",
+      "category": "Gate",
+      "description": "Northern main campus entrance gate linking directly to the national highway, with guard cabin and visitor registration.",
+      "position": [
+        490,
+        95
+      ],
+      "color": "#64748b",
+      "iconType": "gate",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Level Paved Access",
+        "Security Post",
+        "Barrier Free Gate"
+      ],
+      "entranceNodeId": "node_west_gate_junc",
+      "aliases": [
+        "Gate No. 1",
+        "Gate 1",
+        "North Gate",
+        "Main Highway Gate"
+      ]
+    },
+    {
+      "id": "main_building",
+      "name": "Mewar University Main Building",
+      "hindiName": "मेवाड़ विश्वविद्यालय मुख्य भवन",
+      "code": "MAIN_BLD",
+      "category": "Administration",
+      "description": "Central administrative and academic headquarters housing Vice Chancellor chambers, Registrar, Admissions, and Academic Directorate.",
+      "position": [
+        424,
+        188
+      ],
+      "color": "#2563eb",
+      "iconType": "graduation",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Main Front Entrance Ramp",
+        "Passenger Elevators",
+        "Accessible Information Desk",
+        "Braille Floor Directory"
+      ],
+      "entranceNodeId": "node_univ_west_ent",
+      "aliases": [
+        "Mewar University Main Building",
+        "Main Building",
+        "Mewar University",
+        "Admin Block",
+        "Central Academic Block"
+      ]
+    },
+    {
+      "id": "gandhi_museum",
+      "name": "Gandhi Museum",
+      "hindiName": "गांधी म्यूज़ियम",
+      "code": "MUSEUM",
+      "category": "Academic",
+      "description": "Cultural memorial and archival museum dedicated to Mahatma Gandhi, displaying historical artifacts and research literature.",
+      "position": [
+        367,
+        218
+      ],
+      "color": "#0284c7",
+      "iconType": "graduation",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": true,
+      "facilities": [
+        "Level Ground Access",
+        "Tactile Display Aids",
+        "Audio Guides"
+      ],
+      "entranceNodeId": "node_gandhi_ent",
+      "aliases": [
+        "Gandhi Museum",
+        "Museum",
+        "Gandhi Smriti",
+        "Cultural Museum"
+      ]
+    },
+    {
+      "id": "mess",
+      "name": "Mess",
+      "hindiName": "छात्र मेस / भोजनालय",
+      "code": "MESS_1",
+      "category": "Dining",
+      "description": "Spacious campus dining hall catering to students and staff with nutritious multi-cuisine meals.",
+      "position": [
+        337,
+        300
+      ],
+      "color": "#f97316",
+      "iconType": "utensils",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": true,
+      "facilities": [
+        "Zero Threshold Double Doors",
+        "Low Height Serving Counters",
+        "Wheelchair Friendly Aisles"
+      ],
+      "entranceNodeId": "node_mess_ent",
+      "aliases": [
+        "Mess",
+        "Dining Hall",
+        "Student Mess",
+        "Canteen",
+        "Food Court"
+      ]
+    },
+    {
+      "id": "bader_hostel",
+      "name": "Bader Hostel",
+      "hindiName": "बादेर हॉस्टल",
+      "code": "BDH",
+      "category": "Hostel",
+      "description": "Residential student hostel located adjacent to academic and dining complexes.",
+      "position": [
+        397,
+        350
+      ],
+      "color": "#a855f7",
+      "iconType": "bed",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": false,
+      "facilities": [
+        "Ramped Entrance",
+        "Accessible Restrooms",
+        "Common Room"
+      ],
+      "entranceNodeId": "node_bader_ent",
+      "aliases": [
+        "Bader Hostel",
+        "Bader",
+        "BDH"
+      ]
+    },
+    {
+      "id": "law_block",
+      "name": "Law Block",
+      "hindiName": "विधि संकाय भवन",
+      "code": "LAW",
+      "category": "Academic",
+      "description": "Faculty of Legal Studies featuring state-of-the-art moot courtroom, legal aid clinic, and jurisprudence library.",
+      "position": [
+        316,
+        362
+      ],
+      "color": "#3b82f6",
+      "iconType": "building",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": true,
+      "brailleSignage": true,
+      "facilities": [
+        "Moot Court Ramp Access",
+        "Designated Wheelchair Jury Desk",
+        "Braille Signage"
+      ],
+      "entranceNodeId": "node_law_ent",
+      "aliases": [
+        "Law Block",
+        "Faculty of Law",
+        "Law Department",
+        "Law College"
+      ]
+    },
+    {
+      "id": "football_ground",
+      "name": "Football Ground",
+      "hindiName": "फुटबॉल मैदान",
+      "code": "FB_FLD",
+      "category": "Sports",
+      "description": "Official collegiate grass soccer stadium with perimeter spectator stands and paved jogging path.",
+      "position": [
+        307,
+        242
+      ],
+      "color": "#10b981",
+      "iconType": "ball",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Accessible Spectator Area",
+        "Level Field Access",
+        "Paved Perimeter Path"
+      ],
+      "entranceNodeId": "node_fb_ent",
+      "aliases": [
+        "Football Ground",
+        "Football Field",
+        "Soccer Ground",
+        "Soccer Field"
+      ]
+    },
+    {
+      "id": "basketball",
+      "name": "Basketball Court",
+      "hindiName": "बास्केटबॉल कोर्ट",
+      "code": "BB_CRT",
+      "category": "Sports",
+      "description": "Hardcourt outdoor basketball court with spectator seating.",
+      "position": [
+        257,
+        382
+      ],
+      "color": "#10b981",
+      "iconType": "ball",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Level Paved Access",
+        "Spectator Area"
+      ],
+      "entranceNodeId": "node_bball_ent",
+      "aliases": [
+        "Basketball Court",
+        "Basketball",
+        "BB Court"
+      ]
+    },
+    {
+      "id": "cricket_ground",
+      "name": "Cricket Ground",
+      "hindiName": "क्रिकेट मैदान",
+      "code": "CRK_FLD",
+      "category": "Sports",
+      "description": "Expansive cricket arena featuring regulation pitch, turf boundary, practice nets, and spectator seating.",
+      "position": [
+        167,
+        255
+      ],
+      "color": "#10b981",
+      "iconType": "cricket",
+      "wheelchairAccessible": true,
+      "rampAvailable": true,
+      "elevatorAvailable": false,
+      "brailleSignage": false,
+      "facilities": [
+        "Smooth Access Pathway",
+        "Pavilion Ramp",
+        "Accessible Viewing Bays"
+      ],
+      "entranceNodeId": "node_cricket_ent",
+      "aliases": [
+        "Cricket Ground",
+        "Cricket Stadium",
+        "Cricket Pitch"
+      ]
+    }
+  ]
+}

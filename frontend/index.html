@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AccessPath — Accessibility-Aware Campus Map and Navigation for Mewar University, Gangrar, Chittorgarh, Rajasthan. Real OpenStreetMap interactive outdoor map and indoor Kumbha Hostel room navigation without any API key.">
+  <meta name="description"
+    content="AccessPath — Accessibility-Aware Campus Map and Navigation for Mewar University, Gangrar, Chittorgarh, Rajasthan. Real OpenStreetMap interactive outdoor map and indoor Kumbha Hostel room navigation without any API key.">
   <title>AccessPath — Mewar University Campus Map &amp; Indoor Navigation</title>
 
   <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&display=swap"
+    rel="stylesheet">
 
   <!-- Leaflet Map CSS (v1.9.4) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
+
 <body>
 
   <!-- Accessible Skip Link -->
@@ -31,20 +37,22 @@
   <!-- ======================================================================
        1. REAL 100vw x 100vh FULL-SCREEN LEAFLET OPENSTREETMAP CANVAS (Req 1, 2 & 3)
        ====================================================================== -->
-  <div id="campus-map" role="region" aria-label="Interactive OpenStreetMap Campus Map of Mewar University, Gangrar"></div>
+  <div id="campus-map" role="region" aria-label="Interactive OpenStreetMap Campus Map of Mewar University, Gangrar">
+  </div>
 
   <!-- ======================================================================
        2. FLOATING TOP CONTROL HEADER (Search, Brand, Action Buttons)
        ====================================================================== -->
   <header class="top-map-header" role="banner">
-    
+
     <!-- Brand Pill -->
     <div class="brand-floating-pill">
       <div class="brand-icon" aria-hidden="true">♿</div>
       <div class="brand-title-wrap">
         <h1 class="brand-title">
           AccessPath
-          <span id="navbar-elevator-status" class="elevator-health-pill operational" title="Real-time elevator network status">
+          <span id="navbar-elevator-status" class="elevator-health-pill operational"
+            title="Real-time elevator network status">
             <span class="health-dot green"></span> Normal
           </span>
         </h1>
@@ -56,103 +64,71 @@
     <div class="search-floating-container" role="search">
       <div class="search-input-wrapper">
         <span class="search-input-icon" aria-hidden="true">🔍</span>
-        <input 
-          type="text" 
-          id="campus-search-input" 
-          class="search-input" 
-          placeholder="Search Mewar University, Kumbha Hostel, Library..." 
-          aria-label="Search campus landmarks or OpenStreetMap places"
-          autocomplete="off"
-        >
-        <button id="btn-clear-search" class="btn-clear-search hidden" title="Clear Search" aria-label="Clear Search Input">✕</button>
+        <input type="text" id="campus-search-input" class="search-input"
+          placeholder="Search Mewar University, Kumbha Hostel, Library..."
+          aria-label="Search campus landmarks or OpenStreetMap places" autocomplete="off">
+        <button id="btn-clear-search" class="btn-clear-search hidden" title="Clear Search"
+          aria-label="Clear Search Input">✕</button>
       </div>
       <!-- Search Suggestions Dropdown -->
-      <div id="campus-search-dropdown" class="search-dropdown-menu hidden" role="listbox" aria-label="Search Suggestions"></div>
+      <div id="campus-search-dropdown" class="search-dropdown-menu hidden" role="listbox"
+        aria-label="Search Suggestions"></div>
     </div>
 
     <!-- Top Right Action Controls (Req 4, 6 & 7) -->
     <div class="top-action-buttons">
-      
+
       <!-- Button: Open in Google Maps (Req 6 - No API Key, Normal Web URL) -->
-      <button 
-        id="btn-open-gmaps" 
-        class="map-pill-btn btn-google-maps" 
-        title="Open Mewar University in Google Maps (New Tab)"
-        aria-label="Open in Google Maps"
-        onclick="window.AccessPathApp && window.AccessPathApp.map && window.AccessPathApp.map.openInGoogleMaps()"
-      >
+      <button id="btn-open-gmaps" class="map-pill-btn btn-google-maps"
+        title="Open Mewar University in Google Maps (New Tab)" aria-label="Open in Google Maps"
+        onclick="window.AccessPathApp && window.AccessPathApp.map && window.AccessPathApp.map.openInGoogleMaps()">
         <span class="btn-icon">🗺️</span>
         <span>Open in Google Maps</span>
       </button>
 
       <!-- Button: Kumbha Hostel Indoor Map (Req 7 - Rooms 1–16) -->
-      <button 
-        id="btn-open-hostel-indoor" 
-        class="map-pill-btn btn-hostel-indoor-prominent" 
+      <button id="btn-open-hostel-indoor" class="map-pill-btn btn-hostel-indoor-prominent"
         title="Open Kumbha Hostel Ground Floor Indoor Map (Rooms 1–16)"
         aria-label="Open Kumbha Hostel Ground Floor Indoor Map"
-        onclick="window.AccessPathApp && window.AccessPathApp.openHostelIndoorModal('kumba_hostel')"
-      >
+        onclick="window.AccessPathApp && window.AccessPathApp.openHostelIndoorModal('kumba_hostel')">
         <span class="btn-icon">🏢</span>
         <span>Kumbha Hostel Indoor</span>
       </button>
 
       <!-- Button: Locate Me (Req 4 - Browser Geolocation with Permission) -->
-      <button 
-        id="btn-locate-me" 
-        class="map-pill-btn" 
-        title="Find My Current GPS Location"
-        aria-label="Locate me using GPS"
-      >
+      <button id="btn-locate-me" class="map-pill-btn" title="Find My Current GPS Location"
+        aria-label="Locate me using GPS">
         <span class="btn-icon">📍</span>
         <span>Locate Me</span>
       </button>
 
       <!-- Button: Fullscreen Toggle (Req 4 - HTML5 Fullscreen API) -->
-      <button 
-        id="btn-toggle-fullscreen" 
-        class="map-pill-btn" 
-        title="Toggle Fullscreen Mode"
+      <button id="btn-toggle-fullscreen" class="map-pill-btn" title="Toggle Fullscreen Mode"
         aria-label="Toggle Fullscreen"
-        onclick="window.AccessPathApp && window.AccessPathApp.map && window.AccessPathApp.map.toggleFullscreen()"
-      >
+        onclick="window.AccessPathApp && window.AccessPathApp.map && window.AccessPathApp.map.toggleFullscreen()">
         <span class="btn-icon">⛶</span>
         <span>Fullscreen</span>
       </button>
 
       <!-- Button: Route Planner Toggle -->
-      <button 
-        id="btn-toggle-planner" 
-        class="map-pill-btn primary" 
-        title="Toggle Route Planner Drawer"
-        aria-label="Toggle Route Planner Drawer"
-        aria-expanded="true"
-        onclick="document.getElementById('route-planner-drawer').classList.toggle('collapsed')"
-      >
+      <button id="btn-toggle-planner" class="map-pill-btn primary" title="Toggle Route Planner Drawer"
+        aria-label="Toggle Route Planner Drawer" aria-expanded="true"
+        onclick="document.getElementById('route-planner-drawer').classList.toggle('collapsed')">
         <span class="btn-icon">🧭</span>
         <span>Route</span>
       </button>
 
       <!-- Button: Fault Simulator Modal Toggle -->
-      <button 
-        id="btn-toggle-sandbox" 
-        class="map-pill-btn" 
-        title="Resilience &amp; Outage Simulator"
+      <button id="btn-toggle-sandbox" class="map-pill-btn" title="Resilience &amp; Outage Simulator"
         aria-label="Open Simulation Sandbox"
-        onclick="document.getElementById('modal-sandbox').classList.toggle('hidden')"
-      >
+        onclick="document.getElementById('modal-sandbox').classList.toggle('hidden')">
         <span class="btn-icon">⚡</span>
         <span>Simulator</span>
       </button>
 
       <!-- Button: High Contrast Accessibility Toggle -->
-      <button 
-        id="btn-contrast-toggle" 
-        class="map-pill-btn" 
-        title="Toggle High Contrast Accessible Theme"
-        aria-label="Toggle High Contrast"
-        aria-pressed="false"
-      >
+      <button id="btn-contrast-toggle" class="map-pill-btn" title="Toggle High Contrast Accessible Theme"
+        aria-label="Toggle High Contrast" aria-pressed="false">
         <span class="btn-icon">👁️</span>
       </button>
 
@@ -164,16 +140,17 @@
        3. FLOATING COLLAPSIBLE ROUTE PLANNER DRAWER
        ====================================================================== -->
   <aside id="route-planner-drawer" class="route-planner-drawer" aria-label="Campus Route Planner">
-    
+
     <div class="drawer-header">
       <div class="drawer-title">
         <span>🧭</span> Plan Accessible Route
       </div>
-      <button id="btn-close-drawer" class="btn-close-drawer" title="Close Drawer" aria-label="Close route planner drawer">✕</button>
+      <button id="btn-close-drawer" class="btn-close-drawer" title="Close Drawer"
+        aria-label="Close route planner drawer">✕</button>
     </div>
 
     <div class="drawer-body">
-      
+
       <!-- Origin Selector -->
       <div class="form-group">
         <label for="select-origin" class="form-label">📍 Starting Location</label>
@@ -182,7 +159,8 @@
 
       <!-- Swap Button -->
       <div class="swap-btn-wrap">
-        <button id="btn-swap-locations" class="swap-locations-btn" title="Swap Starting Location and Destination" aria-label="Swap Starting Location and Destination">
+        <button id="btn-swap-locations" class="swap-locations-btn" title="Swap Starting Location and Destination"
+          aria-label="Swap Starting Location and Destination">
           ⇅
         </button>
       </div>
@@ -240,20 +218,17 @@
 
       <!-- Quick Featured Scenarios -->
       <div style="margin-top: 4px;">
-        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">Featured Scenarios:</div>
+        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 6px;">
+          Featured Scenarios:</div>
         <div style="display: flex; flex-direction: column; gap: 4px;">
-          <button 
-            class="map-pill-btn" 
+          <button class="map-pill-btn"
             style="justify-content: flex-start; padding: 6px 10px; font-size: 11px; width: 100%; border-radius: 8px;"
-            onclick="window.AccessPathApp.selectPreset('node_gate_1', 'node_ent_kumbah')"
-          >
+            onclick="window.AccessPathApp.selectPreset('node_gate_1', 'node_ent_kumbah')">
             <span>🏨</span> Main Gate ➔ Kumbha Hostel (Step-Free)
           </button>
-          <button 
-            class="map-pill-btn" 
+          <button class="map-pill-btn"
             style="justify-content: flex-start; padding: 6px 10px; font-size: 11px; width: 100%; border-radius: 8px;"
-            onclick="window.AccessPathApp.selectPreset('node_ent_kumbah', 'node_ent_library')"
-          >
+            onclick="window.AccessPathApp.selectPreset('node_ent_kumbah', 'node_ent_library')">
             <span>📚</span> Kumbha Hostel ➔ Central Library
           </button>
         </div>
@@ -273,9 +248,10 @@
   <!-- ======================================================================
        4. SEPARATE KUMBHA HOSTEL INDOOR NAVIGATION MODAL (Req 7, 8 & 9)
        ====================================================================== -->
-  <div id="modal-hostel-indoor" class="modal-backdrop-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="indoor-modal-title" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div id="modal-hostel-indoor" class="modal-backdrop-overlay hidden" role="dialog" aria-modal="true"
+    aria-labelledby="indoor-modal-title" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="indoor-modal-container">
-      
+
       <!-- Modal Top Bar -->
       <div class="indoor-modal-top-bar">
         <div class="indoor-header-left">
@@ -287,13 +263,16 @@
         </div>
 
         <div class="indoor-header-actions">
-          <button id="btn-indoor-wheelchair" class="indoor-action-btn" title="Toggle Wheelchair Mode" aria-pressed="false">
+          <button id="btn-indoor-wheelchair" class="indoor-action-btn" title="Toggle Wheelchair Mode"
+            aria-pressed="false">
             <span>♿</span> Step-Free Mode
           </button>
           <button id="btn-indoor-lang" class="indoor-action-btn" title="Toggle English / Hindi Guidance">
             <span>🗣️</span> Hindi
           </button>
-          <button id="btn-close-indoor-modal" class="btn-close-modal" title="Close Indoor Floor Plan" aria-label="Close indoor navigation modal" onclick="document.getElementById('modal-hostel-indoor').classList.add('hidden')">
+          <button id="btn-close-indoor-modal" class="btn-close-modal" title="Close Indoor Floor Plan"
+            aria-label="Close indoor navigation modal"
+            onclick="document.getElementById('modal-hostel-indoor').classList.add('hidden')">
             ✕
           </button>
         </div>
@@ -303,24 +282,23 @@
       <div class="indoor-notice-banner" role="note">
         <span class="indoor-notice-badge">Verified Floor Plan</span>
         <span>
-          <strong>Indoor Architecture Notice:</strong> Outdoor mapping services (OpenStreetMap &amp; Google Maps) do not possess interior room layouts. Indoor navigation is rendered directly using the supplied architectural ground floor plan of Kumbha Hostel.
+          <strong>Indoor Architecture Notice:</strong> Outdoor mapping services (OpenStreetMap &amp; Google Maps) do not
+          possess interior room layouts. Indoor navigation is rendered directly using the supplied architectural ground
+          floor plan of Kumbha Hostel.
         </span>
       </div>
 
       <!-- Modal Content Grid -->
       <div class="indoor-modal-content-grid">
-        
+
         <!-- Left: Floor Plan Interactive Canvas (Pan & Zoom) -->
-        <div id="indoor-canvas-viewport" class="indoor-canvas-viewport" title="Click and drag to pan, use controls to zoom">
+        <div id="indoor-canvas-viewport" class="indoor-canvas-viewport"
+          title="Click and drag to pan, use controls to zoom">
           <div id="indoor-canvas-inner" class="indoor-canvas-inner">
             <!-- 1. Supplied High-Resolution Architectural Floor Plan Image -->
-            <img 
-              id="kumbah-floor-plan-img" 
-              src="/static/images/kumbah-ground-floor.png" 
-              alt="Kumbha Hostel Ground Floor Architectural Layout Plan" 
-              class="floor-plan-base-img"
-              onerror="this.src='/static/public/maps/kumbah-ground-floor.png'"
-            >
+            <img id="kumbah-floor-plan-img" src="/static/images/kumbah-ground-floor.png"
+              alt="Kumbha Hostel Ground Floor Architectural Layout Plan" class="floor-plan-base-img"
+              onerror="this.src='/static/public/maps/kumbah-ground-floor.png'">
             <!-- 2. Scaled SVG Interactive Corridor, Doors & Glowing Route Layer -->
             <svg id="indoor-svg-layer" class="indoor-svg-layer" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
           </div>
@@ -335,16 +313,18 @@
 
         <!-- Right: Room Selection & Turn-by-Turn Guidance -->
         <div class="indoor-sidebar-controls">
-          
+
           <div class="indoor-room-selector-card">
             <div class="room-selector-header">
               <span>Select Destination Room</span>
               <span style="color:#38bdf8;">Rooms 1–16</span>
             </div>
-            <select id="select-indoor-room" class="select-indoor-room" aria-label="Select target room in Kumbha Hostel"></select>
+            <select id="select-indoor-room" class="select-indoor-room"
+              aria-label="Select target room in Kumbha Hostel"></select>
 
             <!-- Quick Selection Chips -->
-            <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 10px;">
+            <div
+              style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-top: 10px;">
               Quick Select Room or Washroom:
             </div>
             <div id="indoor-quick-room-chips" class="indoor-quick-chips-wrap"></div>
@@ -368,36 +348,45 @@
   <!-- ======================================================================
        5. SIMULATION SANDBOX MODAL (Preserved Feature)
        ====================================================================== -->
-  <div id="modal-sandbox" class="modal-backdrop-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sandbox-modal-title" onclick="if(event.target===this) this.classList.add('hidden')">
+  <div id="modal-sandbox" class="modal-backdrop-overlay hidden" role="dialog" aria-modal="true"
+    aria-labelledby="sandbox-modal-title" onclick="if(event.target===this) this.classList.add('hidden')">
     <div class="indoor-modal-container" style="max-width: 680px; height: auto; max-height: 85vh;">
       <div class="indoor-modal-top-bar">
         <div class="indoor-header-left">
-          <div class="indoor-bldg-badge" style="background:rgba(217, 119, 6, 0.2); color:#f59e0b; border-color:#d97706;">⚡</div>
+          <div class="indoor-bldg-badge"
+            style="background:rgba(217, 119, 6, 0.2); color:#f59e0b; border-color:#d97706;">⚡</div>
           <div>
             <h2 id="sandbox-modal-title" class="indoor-bldg-title">Live Resilience &amp; Fault Simulation</h2>
-            <div class="indoor-bldg-subtitle">Simulate real-time elevator outages and construction walkway closures</div>
+            <div class="indoor-bldg-subtitle">Simulate real-time elevator outages and construction walkway closures
+            </div>
           </div>
         </div>
-        <button id="btn-close-sandbox" class="btn-close-modal" title="Close Simulator" onclick="document.getElementById('modal-sandbox').classList.add('hidden')">✕</button>
+        <button id="btn-close-sandbox" class="btn-close-modal" title="Close Simulator"
+          onclick="document.getElementById('modal-sandbox').classList.add('hidden')">✕</button>
       </div>
 
       <div style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;">
         <div style="background:#111827; border:1px solid #1f2937; border-radius:10px; padding:12px;">
-          <h3 style="font-size:13px; font-weight:800; color:#ffffff; margin-bottom:6px;">🛗 Elevator Outage Simulation</h3>
+          <h3 style="font-size:13px; font-weight:800; color:#ffffff; margin-bottom:6px;">🛗 Elevator Outage Simulation
+          </h3>
           <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">
-            Toggle elevator operational status. When an elevator is taken out of service, AccessPath automatically invalidates active routes and plots step-free ramp detours.
+            Toggle elevator operational status. When an elevator is taken out of service, AccessPath automatically
+            invalidates active routes and plots step-free ramp detours.
           </p>
           <div id="sandbox-elevators-list" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
 
         <div style="background:#111827; border:1px solid #1f2937; border-radius:10px; padding:12px;">
-          <h3 style="font-size:13px; font-weight:800; color:#ffffff; margin-bottom:6px;">🚧 Pathway Closure Simulation</h3>
-          <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">Simulate emergency walkway maintenance or construction barriers.</p>
+          <h3 style="font-size:13px; font-weight:800; color:#ffffff; margin-bottom:6px;">🚧 Pathway Closure Simulation
+          </h3>
+          <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">Simulate emergency walkway maintenance or
+            construction barriers.</p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="map-pill-btn" onclick="window.AccessPathApp.toggleEdgeStatus('E_GATE_TO_PLAZA', 'blocked')">
               Block Main Gate Walkway
             </button>
-            <button class="map-pill-btn" onclick="window.AccessPathApp.handleResetDemo()" style="color:#10b981; border-color:#059669;">
+            <button class="map-pill-btn" onclick="window.AccessPathApp.handleResetDemo()"
+              style="color:#10b981; border-color:#059669;">
               🔄 Restore All Paths &amp; Lifts
             </button>
           </div>
@@ -444,7 +433,8 @@
   </div>
 
   <!-- Leaflet Map JS (v1.9.4) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- Application Modules -->
   <script src="/static/js/api.js"></script>
@@ -452,4 +442,5 @@
   <script src="/static/js/app.js"></script>
 
 </body>
+
 </html>

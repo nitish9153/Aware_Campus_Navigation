@@ -5,6 +5,7 @@ import {
   MAP_IMAGE_BOUNDS,
   MAP_IMAGE_URL,
   FALLBACK_IMAGE_URL,
+  ROUTES_OVERLAY_URL,
   METERS_PER_PIXEL,
   type SatelliteLocation,
   type SatellitePathNode,
@@ -135,24 +136,24 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // Dimensions: 1024 x 1536
-    // Bounds in CRS.Simple: [[0, 0], [1536, 1024]]
+    // Dimensions: 562 x 672
+    // Bounds in CRS.Simple: [[0, 0], [672, 562]]
     const bounds: L.LatLngBoundsExpression = MAP_IMAGE_BOUNDS;
 
     const map = L.map(mapContainerRef.current, {
       crs: L.CRS.Simple,
-      minZoom: -1.2,
-      maxZoom: 3.0,
+      minZoom: -1.0,
+      maxZoom: 3.5,
       zoomDelta: 0.5,
       zoomSnap: 0.25,
       zoomControl: false,
       attributionControl: false,
-      maxBounds: [[-120, -120], [1656, 1144]],
+      maxBounds: [[-60, -60], [732, 622]],
       maxBoundsViscosity: 0.85
     });
     mapInstanceRef.current = map;
 
-    // Add Uploaded Satellite Image as Custom Image Overlay
+    // Add Uploaded Satellite Image as Custom Image Overlay (Fixed Source of Truth)
     const overlay = L.imageOverlay(currentImageUrl, bounds, {
       opacity: 1.0,
       interactive: true,
@@ -172,6 +173,14 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
         setImageError(true);
       }
     });
+
+    // Add Master Pixel-Perfect Route & Waypoint Overlay Layer (100% exact alignment)
+    try {
+      L.imageOverlay(ROUTES_OVERLAY_URL, bounds, {
+        opacity: 1.0,
+        interactive: false
+      }).addTo(map);
+    } catch {}
 
     // Fit to initial campus view with balanced padding
     map.fitBounds(bounds, { padding: [15, 15] });
@@ -258,12 +267,17 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
     };
   }, [isAdminMode, isAddNodeMode, onAddNodeAtPosition, isAddLocationMode, onAddLocationAtPosition]);
 
-  // 3.5. Render Mandatory Red-Line Walking Network on the Satellite Map
-  // The allowed walking network is always clearly displayed in red lines, matching the original hand-drawn routes
+  // 3.5. Render Walking Network on the Satellite Map
+  // The authentic red routes and green waypoints are preserved 100% pixel-for-pixel from the master map layer.
+  // In Admin Mode, active graph connections are displayed for editing/diagnostics.
   useEffect(() => {
     if (!mapInstanceRef.current || !basePathsGroupRef.current) return;
     const basePathsGroup = basePathsGroupRef.current;
     basePathsGroup.clearLayers();
+
+    // In normal mode, authentic red routes from master image are fully displayed without distortion.
+    // In admin mode, display connection lines between graph nodes to assist node editing.
+    if (!isAdminMode) return;
 
     const nodeMap = new Map<string, SatellitePathNode>(
       networkNodes.map(n => [n.id, n])
@@ -274,30 +288,17 @@ export const SatelliteMap: React.FC<SatelliteMapProps> = ({
       const tgtNode = nodeMap.get(edge.target);
       if (!srcNode || !tgtNode) return;
 
-      // Soft shadow / underglow line
-      const shadowLine = L.polyline([srcNode.position, tgtNode.position], {
-        color: '#7f1d1d',
-        weight: 6,
-        opacity: 0.35,
-        lineCap: 'round',
-        lineJoin: 'round',
+      // Admin visual guide line
+      const adminGuideLine = L.polyline([srcNode.position, tgtNode.position], {
+        color: '#3b82f6',
+        weight: 2,
+        opacity: 0.7,
+        dashArray: '4, 4',
         interactive: false
       });
-      basePathsGroup.addLayer(shadowLine);
-
-      // Core vibrant red line (allowed walking network)
-      const coreRedLine = L.polyline([srcNode.position, tgtNode.position], {
-        color: '#ef4444',
-        weight: 3.5,
-        opacity: 0.92,
-        lineCap: 'round',
-        lineJoin: 'round',
-        dashArray: edge.isAccessible ? undefined : '5, 5',
-        interactive: false
-      });
-      basePathsGroup.addLayer(coreRedLine);
+      basePathsGroup.addLayer(adminGuideLine);
     });
-  }, [networkNodes, networkEdges]);
+  }, [networkNodes, networkEdges, isAdminMode]);
 
   // 4. Render Landmark Markers
   useEffect(() => {

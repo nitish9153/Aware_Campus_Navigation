@@ -12,6 +12,9 @@ import { KumbahHostelNavigator } from './components/KumbahHostelNavigator';
 import { AdminIndoorEditor } from './components/AdminIndoorEditor';
 import { AdminLocationModal } from './components/AdminLocationModal';
 import { AdminSatelliteLocationModal } from './components/AdminSatelliteLocationModal';
+import { App as CapApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
 
 // Satellite image dataset (Leaflet CRS.Simple)
 import {
@@ -237,6 +240,40 @@ export const App: React.FC = () => {
     setAdminToast(msg);
     setTimeout(() => setAdminToast(null), 3500);
   };
+
+  // Capacitor Android status bar styling & hardware back navigation
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+      StatusBar.setBackgroundColor({ color: '#020617' }).catch(() => {});
+
+      const backListener = CapApp.addListener('backButton', () => {
+        if (isAdminIndoorOpen) {
+          setIsAdminIndoorOpen(false);
+        } else if (isAdminLocationModalOpen) {
+          setIsAdminLocationModalOpen(false);
+        } else if (isIndoorModalOpen) {
+          setIsIndoorModalOpen(false);
+        } else if (selectedSatLocation) {
+          setSelectedSatLocation(null);
+        } else if (isDirectionsOpen) {
+          setIsDirectionsOpen(false);
+        } else {
+          CapApp.exitApp();
+        }
+      });
+
+      return () => {
+        backListener.then(l => l.remove()).catch(() => {});
+      };
+    }
+  }, [
+    isAdminIndoorOpen,
+    isAdminLocationModalOpen,
+    isIndoorModalOpen,
+    selectedSatLocation,
+    isDirectionsOpen
+  ]);
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-slate-950 font-sans">

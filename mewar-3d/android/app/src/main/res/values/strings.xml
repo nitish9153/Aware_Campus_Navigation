@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AccessPath</string>
+    <string name="title_activity_main">AccessPath</string>
+    <string name="package_name">com.accesspath.mewaruniversity</string>
+    <string name="custom_url_scheme">com.accesspath.mewaruniversity</string>
+</resources>

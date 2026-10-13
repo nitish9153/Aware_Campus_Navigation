@@ -1,9 +1,9 @@
 /**
  * Mewar University Satellite Map Dataset
- * Strictly aligned with the 1024 x 1536 Mewar University satellite map imagery.
- * Uses Leaflet L.CRS.Simple where bounds are [[0, 0], [1536, 1024]].
- * Latitude = 0 (bottom) to 1536 (top)  => lat = 1536 - y_pixel
- * Longitude = 0 (left) to 1024 (right) => lng = x_pixel
+ * Strictly calibrated to the 562 x 672 Mewar University Master Reference Map.
+ * Uses Leaflet L.CRS.Simple where bounds are [[0, 0], [672, 562]].
+ * Latitude = 0 (bottom) to 672 (top)  => lat = 672 - y_pixel
+ * Longitude = 0 (left) to 562 (right) => lng = x_pixel
  */
 
 export interface SatelliteLocation {
@@ -42,14 +42,15 @@ export interface SatellitePathEdge {
   description: string;
 }
 
-export const MAP_IMAGE_WIDTH = 1024;
-export const MAP_IMAGE_HEIGHT = 1536;
-export const MAP_IMAGE_BOUNDS: [[number, number], [number, number]] = [[0, 0], [1536, 1024]];
+export const MAP_IMAGE_WIDTH = 562;
+export const MAP_IMAGE_HEIGHT = 672;
+export const MAP_IMAGE_BOUNDS: [[number, number], [number, number]] = [[0, 0], [672, 562]];
 export const MAP_IMAGE_URL = '/images/mewar-university-campus.png';
 export const FALLBACK_IMAGE_URL = '/mewar-satellite-map.png';
+export const ROUTES_OVERLAY_URL = '/images/routes-overlay.png';
 
-// Scale factor: calibrated meters per pixel in the satellite image
-export const METERS_PER_PIXEL = 0.45;
+// Scale factor: calibrated meters per pixel in the 562 x 672 satellite image
+export const METERS_PER_PIXEL = 0.85;
 
 export function calculateEdgeDistanceMeters(p1: [number, number], p2: [number, number]): number {
   const dx = p1[1] - p2[1];
@@ -59,8 +60,8 @@ export function calculateEdgeDistanceMeters(p1: [number, number], p2: [number, n
 }
 
 // ---------------------------------------------------------------------------
-// 1. CAMPUS LOCATIONS IDENTIFIED ACCURATELY FROM SATELLITE IMAGE
-// Coordinates correspond strictly to visible building positions and pins
+// 1. CAMPUS LOCATIONS IDENTIFIED ACCURATELY FROM REFERENCE SATELLITE IMAGE
+// Coordinates correspond strictly to visible building positions and pins in the master map
 // ---------------------------------------------------------------------------
 export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
   {
@@ -70,7 +71,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'SBH',
     category: 'Hostel',
     description: 'Premier residential hostel for male students located at the northern perimeter with study halls and common areas.',
-    position: [1441, 420],
+    position: [620, 224],
     color: '#a855f7',
     iconType: 'bed',
     wheelchairAccessible: true,
@@ -78,8 +79,8 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: true,
     brailleSignage: false,
     facilities: ['Level Ramp Entrance', 'Accessible Ground Floor Rooms', 'Mess Access', 'Wi-Fi Lounge'],
-    entranceNodeId: 'node_ent_sanga',
-    aliases: ['Sanga Hostel', 'Sanga', 'Sanga Boys Hostel']
+    entranceNodeId: 'node_sanga_ent',
+    aliases: ['Sanga Hostel', 'Sanga', 'Sanga Boys Hostel', 'SBH']
   },
   {
     id: 'kumba_hostel',
@@ -88,7 +89,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'KBH',
     category: 'Hostel',
     description: 'Multi-wing residence named after Maharana Kumbha. Features ground floor Rooms 1–16, central corridor, and washrooms at both ends.',
-    position: [1276, 442],
+    position: [550, 255],
     color: '#a855f7',
     iconType: 'bed',
     wheelchairAccessible: true,
@@ -96,7 +97,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: true,
     brailleSignage: true,
     facilities: ['Dedicated Entrance Ramp', 'Ground Floor Accessible Restrooms', 'Common Room'],
-    entranceNodeId: 'node_ent_kumba',
+    entranceNodeId: 'node_kumba_ent',
     aliases: ['Kumbah Hostel – Ground Floor', 'Kumbah Hostel', 'Kumba Hostel', 'Kumbha Hostel', 'Kumba', 'Kumbha', 'KBH']
   },
   {
@@ -106,7 +107,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'GH',
     category: 'Hostel',
     description: 'Secure multi-story residential block for female students with 24/7 security desk and inner courtyard.',
-    position: [1346, 150],
+    position: [565, 80],
     color: '#a855f7',
     iconType: 'bed',
     wheelchairAccessible: true,
@@ -114,7 +115,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: true,
     brailleSignage: true,
     facilities: ['Automated Sliding Door', 'Step-Free Ramp', 'Elevator', '24/7 Security'],
-    entranceNodeId: 'node_ent_girls',
+    entranceNodeId: 'node_sanga_nw',
     aliases: ['Girls Hostel', 'GH', 'Womens Hostel']
   },
   {
@@ -124,7 +125,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'HOSP',
     category: 'Medical',
     description: 'University Health & Medical Center with round-the-clock emergency care, consultations, and ambulance station.',
-    position: [1406, 245],
+    position: [592, 135],
     color: '#ef4444',
     iconType: 'cross',
     wheelchairAccessible: true,
@@ -132,7 +133,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: true,
     brailleSignage: true,
     facilities: ['Emergency Ambulance Bay', 'Wide Wheelchair Ramp', 'Medical Equipment', 'Pharmacy'],
-    entranceNodeId: 'node_ent_hospital',
+    entranceNodeId: 'node_sanga_north',
     aliases: ['Hospital', 'Health Center', 'Medical Center', 'Clinic', 'Ambulance']
   },
   {
@@ -141,7 +142,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'GATE_1',
     category: 'Gate',
     description: 'Northern main campus entrance gate linking directly to the national highway, with guard cabin and visitor registration.',
-    position: [1226, 135],
+    position: [490, 95],
     color: '#64748b',
     iconType: 'gate',
     wheelchairAccessible: true,
@@ -149,7 +150,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: false,
     brailleSignage: false,
     facilities: ['Level Paved Access', 'Security Post', 'Barrier Free Gate'],
-    entranceNodeId: 'node_gate_1',
+    entranceNodeId: 'node_west_gate_junc',
     aliases: ['Gate No. 1', 'Gate 1', 'North Gate', 'Main Highway Gate']
   },
   {
@@ -159,7 +160,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'MAIN_BLD',
     category: 'Administration',
     description: 'Central administrative and academic headquarters housing Vice Chancellor chambers, Registrar, Admissions, and Academic Directorate.',
-    position: [1106, 270],
+    position: [424, 188],
     color: '#2563eb',
     iconType: 'graduation',
     wheelchairAccessible: true,
@@ -167,7 +168,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: true,
     brailleSignage: true,
     facilities: ['Main Front Entrance Ramp', 'Passenger Elevators', 'Accessible Information Desk', 'Braille Floor Directory'],
-    entranceNodeId: 'node_ent_mewar',
+    entranceNodeId: 'node_univ_west_ent',
     aliases: ['Mewar University Main Building', 'Main Building', 'Mewar University', 'Admin Block', 'Central Academic Block']
   },
   {
@@ -177,7 +178,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'MUSEUM',
     category: 'Academic',
     description: 'Cultural memorial and archival museum dedicated to Mahatma Gandhi, displaying historical artifacts and research literature.',
-    position: [926, 380],
+    position: [367, 218],
     color: '#0284c7',
     iconType: 'graduation',
     wheelchairAccessible: true,
@@ -185,25 +186,8 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: false,
     brailleSignage: true,
     facilities: ['Level Ground Access', 'Tactile Display Aids', 'Audio Guides'],
-    entranceNodeId: 'node_ent_gandhi',
+    entranceNodeId: 'node_gandhi_ent',
     aliases: ['Gandhi Museum', 'Museum', 'Gandhi Smriti', 'Cultural Museum']
-  },
-  {
-    id: 'gate_2',
-    name: 'Gate No. 2',
-    code: 'GATE_2',
-    category: 'Gate',
-    description: 'Central campus entrance gate directly opening towards Gandhi Museum and the central administrative quad.',
-    position: [821, 320],
-    color: '#64748b',
-    iconType: 'gate',
-    wheelchairAccessible: true,
-    rampAvailable: true,
-    elevatorAvailable: false,
-    brailleSignage: false,
-    facilities: ['Vehicular & Pedestrian Portal', 'Curb Cut Access', 'Security Checkpoint'],
-    entranceNodeId: 'node_gate_2',
-    aliases: ['Gate No. 2', 'Gate 2', 'Central Gate', 'Museum Gate']
   },
   {
     id: 'mess',
@@ -211,8 +195,8 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     hindiName: 'छात्र मेस / भोजनालय',
     code: 'MESS_1',
     category: 'Dining',
-    description: 'Spacious campus dining hall with silver-paneled roof catering to students and staff with nutritious multi-cuisine meals.',
-    position: [866, 620],
+    description: 'Spacious campus dining hall catering to students and staff with nutritious multi-cuisine meals.',
+    position: [337, 300],
     color: '#f97316',
     iconType: 'utensils',
     wheelchairAccessible: true,
@@ -220,8 +204,26 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: false,
     brailleSignage: true,
     facilities: ['Zero Threshold Double Doors', 'Low Height Serving Counters', 'Wheelchair Friendly Aisles'],
-    entranceNodeId: 'node_ent_mess',
+    entranceNodeId: 'node_mess_ent',
     aliases: ['Mess', 'Dining Hall', 'Student Mess', 'Canteen', 'Food Court']
+  },
+  {
+    id: 'bader_hostel',
+    name: 'Bader Hostel',
+    hindiName: 'बादेर हॉस्टल',
+    code: 'BDH',
+    category: 'Hostel',
+    description: 'Residential student hostel located adjacent to academic and dining complexes.',
+    position: [397, 350],
+    color: '#a855f7',
+    iconType: 'bed',
+    wheelchairAccessible: true,
+    rampAvailable: true,
+    elevatorAvailable: true,
+    brailleSignage: false,
+    facilities: ['Ramped Entrance', 'Accessible Restrooms', 'Common Room'],
+    entranceNodeId: 'node_bader_ent',
+    aliases: ['Bader Hostel', 'Bader', 'BDH']
   },
   {
     id: 'law_block',
@@ -230,7 +232,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'LAW',
     category: 'Academic',
     description: 'Faculty of Legal Studies featuring state-of-the-art moot courtroom, legal aid clinic, and jurisprudence library.',
-    position: [791, 750],
+    position: [316, 362],
     color: '#3b82f6',
     iconType: 'building',
     wheelchairAccessible: true,
@@ -238,7 +240,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: true,
     brailleSignage: true,
     facilities: ['Moot Court Ramp Access', 'Designated Wheelchair Jury Desk', 'Braille Signage'],
-    entranceNodeId: 'node_ent_law',
+    entranceNodeId: 'node_law_ent',
     aliases: ['Law Block', 'Faculty of Law', 'Law Department', 'Law College']
   },
   {
@@ -247,8 +249,8 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     hindiName: 'फुटबॉल मैदान',
     code: 'FB_FLD',
     category: 'Sports',
-    description: 'Official collegiate grass soccer stadium with perimeter spectator stands, floodlights, and paved jogging path.',
-    position: [707, 488],
+    description: 'Official collegiate grass soccer stadium with perimeter spectator stands and paved jogging path.',
+    position: [307, 242],
     color: '#10b981',
     iconType: 'ball',
     wheelchairAccessible: true,
@@ -256,8 +258,26 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: false,
     brailleSignage: false,
     facilities: ['Accessible Spectator Area', 'Level Field Access', 'Paved Perimeter Path'],
-    entranceNodeId: 'node_ent_fb',
+    entranceNodeId: 'node_fb_ent',
     aliases: ['Football Ground', 'Football Field', 'Soccer Ground', 'Soccer Field']
+  },
+  {
+    id: 'basketball',
+    name: 'Basketball Court',
+    hindiName: 'बास्केटबॉल कोर्ट',
+    code: 'BB_CRT',
+    category: 'Sports',
+    description: 'Hardcourt outdoor basketball court with spectator seating.',
+    position: [257, 382],
+    color: '#10b981',
+    iconType: 'ball',
+    wheelchairAccessible: true,
+    rampAvailable: true,
+    elevatorAvailable: false,
+    brailleSignage: false,
+    facilities: ['Level Paved Access', 'Spectator Area'],
+    entranceNodeId: 'node_bball_ent',
+    aliases: ['Basketball Court', 'Basketball', 'BB Court']
   },
   {
     id: 'cricket_ground',
@@ -266,7 +286,7 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     code: 'CRK_FLD',
     category: 'Sports',
     description: 'Expansive cricket arena featuring regulation pitch, turf boundary, practice nets, and spectator seating.',
-    position: [416, 580],
+    position: [167, 255],
     color: '#10b981',
     iconType: 'cricket',
     wheelchairAccessible: true,
@@ -274,185 +294,100 @@ export const SATELLITE_CAMPUS_LOCATIONS: SatelliteLocation[] = [
     elevatorAvailable: false,
     brailleSignage: false,
     facilities: ['Smooth Access Pathway', 'Pavilion Ramp', 'Accessible Viewing Bays'],
-    entranceNodeId: 'node_ent_cricket',
+    entranceNodeId: 'node_cricket_ent',
     aliases: ['Cricket Ground', 'Cricket Stadium', 'Cricket Pitch']
-  },
-  {
-    id: 'gym',
-    name: 'Gym',
-    hindiName: 'व्यायामशाला / जिम',
-    code: 'GYM',
-    category: 'Sports',
-    description: 'University Sports Training & Fitness Gymnasium equipped with cardio equipment, resistance weights, and indoor courts.',
-    position: [454, 796],
-    color: '#ef4444',
-    iconType: 'cross',
-    wheelchairAccessible: true,
-    rampAvailable: true,
-    elevatorAvailable: false,
-    brailleSignage: false,
-    facilities: ['Ramped Entrance', 'Accessible Locker Rooms', 'Adaptive Fitness Gear'],
-    entranceNodeId: 'node_ent_gym',
-    aliases: ['Gym', 'Gymnasium', 'Fitness Center', 'Sports Training Center']
-  },
-  {
-    id: 'guest_house',
-    name: 'Guest House',
-    code: 'GHOUSE',
-    category: 'Dining',
-    description: 'University VIP hospitality suites and dining facility for visiting dignitaries, academic scholars, and parents.',
-    position: [1296, 240],
-    color: '#f97316',
-    iconType: 'utensils',
-    wheelchairAccessible: true,
-    rampAvailable: true,
-    elevatorAvailable: false,
-    brailleSignage: true,
-    facilities: ['Step-Free Porch Entrance', 'Reception Lobby', 'Executive Dining'],
-    entranceNodeId: 'node_ent_guest_house',
-    aliases: ['Guest House', 'VIP Guest House', 'Guest House Dining']
-  },
-  {
-    id: 'auditorium',
-    name: 'Auditorium',
-    code: 'AUD',
-    category: 'Academic',
-    description: 'University convention hall hosting convocations, theatrical events, national seminars, and cultural festivals.',
-    position: [240, 260],
-    color: '#3b82f6',
-    iconType: 'building',
-    wheelchairAccessible: true,
-    rampAvailable: true,
-    elevatorAvailable: true,
-    brailleSignage: true,
-    facilities: ['Dedicated Accessible Entrance Ramp', 'Wheelchair Stage Access Lift', 'Front-Row Seating Spaces'],
-    entranceNodeId: 'node_ent_auditorium',
-    aliases: ['Auditorium', 'Convocation Hall', 'Main Auditorium', 'Events Center']
   }
 ];
 
 // ---------------------------------------------------------------------------
-// 2. CALIBRATED ROAD & WALKWAY GRAPH
-// Strictly mapped to visible roads, corners, intersections, and building entrances
+// 2. CALIBRATED ROAD & WALKWAY GRAPH (29 Green Waypoints & Authentic Red Paths)
+// Directly extracted from the master campus map
 // ---------------------------------------------------------------------------
 export const DEFAULT_SATELLITE_PATH_NODES: SatellitePathNode[] = [
-  // --- Building Entrances ---
-  { id: 'node_ent_sanga', name: 'Sanga Hostel Entrance', position: [1441, 420], isEntrance: true, buildingId: 'sanga_hostel' },
-  { id: 'node_ent_kumba', name: 'Kumba Hostel Entrance', position: [1276, 442], isEntrance: true, buildingId: 'kumba_hostel' },
-  { id: 'node_ent_hospital', name: 'Hospital Entrance', position: [1406, 245], isEntrance: true, buildingId: 'hospital' },
-  { id: 'node_ent_girls', name: 'Girls Hostel Entrance', position: [1346, 150], isEntrance: true, buildingId: 'girls_hostel' },
-  { id: 'node_gate_1', name: 'Gate No. 1 Entrance', position: [1226, 135], isEntrance: true, buildingId: 'gate_1' },
-  { id: 'node_ent_mewar', name: 'Mewar University Main Entrance', position: [1106, 270], isEntrance: true, buildingId: 'main_building' },
-  { id: 'node_ent_gandhi', name: 'Gandhi Museum Entrance', position: [926, 380], isEntrance: true, buildingId: 'gandhi_museum' },
-  { id: 'node_gate_2', name: 'Gate No. 2 Entrance', position: [821, 320], isEntrance: true, buildingId: 'gate_2' },
-  { id: 'node_ent_mess', name: 'Mess Main Entrance', position: [866, 620], isEntrance: true, buildingId: 'mess' },
-  { id: 'node_ent_law', name: 'Law Block Entrance', position: [791, 750], isEntrance: true, buildingId: 'law_block' },
-  { id: 'node_ent_fb', name: 'Football Ground Pavilion', position: [707, 488], isEntrance: true, buildingId: 'football_ground' },
-  { id: 'node_ent_cricket', name: 'Cricket Ground Pavilion', position: [416, 580], isEntrance: true, buildingId: 'cricket_ground' },
-  { id: 'node_ent_gym', name: 'Gym Entrance', position: [454, 796], isEntrance: true, buildingId: 'gym' },
-  { id: 'node_ent_guest_house', name: 'Guest House Entrance', position: [1296, 240], isEntrance: true, buildingId: 'guest_house' },
-  { id: 'node_ent_auditorium', name: 'Auditorium Portal', position: [240, 260], isEntrance: true, buildingId: 'auditorium' },
+  // --- North Sector: Sanga Hostel, Gate, Approach ---
+  { id: 'node_sanga_north', name: 'Sanga Hostel North Approach', position: [593.5, 130.0], isEntrance: true, buildingId: 'sanga_hostel' },
+  { id: 'node_sanga_nw', name: 'North-West Perimeter Gate', position: [588.4, 112.2] },
+  { id: 'node_sanga_east', name: 'Sanga Hostel East Lane', position: [573.2, 217.4] },
+  { id: 'node_sanga_ent', name: 'Sanga Hostel Main Entrance', position: [570.5, 192.0], isEntrance: true, buildingId: 'sanga_hostel' },
+  { id: 'node_sanga_west', name: 'Sanga Hostel West Lane', position: [552.8, 139.8] },
 
-  // --- West Perimeter Highway ---
-  { id: 'node_hwy_n', name: 'West Highway North Apex', position: [1436, 60] },
-  { id: 'node_hwy_g1', name: 'West Highway at Gate 1', position: [1226, 70] },
-  { id: 'node_hwy_mid', name: 'West Highway Mid Junction', position: [1016, 140] },
-  { id: 'node_hwy_g2', name: 'West Highway at Gate 2', position: [821, 200] },
-  { id: 'node_hwy_fb', name: 'West Highway beside Football', position: [676, 260] },
-  { id: 'node_hwy_cricket', name: 'West Highway beside Cricket', position: [416, 360] },
-  { id: 'node_hwy_s', name: 'West Highway South Apex', position: [186, 440] },
+  // --- Kumbha Hostel Sector ---
+  { id: 'node_kumba_north', name: 'Kumbha Hostel North Lane', position: [537.3, 248.5] },
+  { id: 'node_sanga_kumba_junc', name: 'Sanga-Kumbha Junction', position: [531.4, 210.0] },
+  { id: 'node_west_upper', name: 'West Campus Drive (Upper)', position: [515.8, 119.4] },
+  { id: 'node_kumba_mid', name: 'Kumbha Approach Spine', position: [515.0, 198.4] },
+  { id: 'node_nw_cross', name: 'North-West Cross Pathway', position: [510.8, 156.8] },
+  { id: 'node_kumba_ent', name: 'Kumbha Hostel Main Entrance', position: [505.3, 260.1], isEntrance: true, buildingId: 'kumba_hostel' },
+  { id: 'node_west_gate_junc', name: 'West Drive at Gate 1', position: [490.0, 105.5] },
 
-  // --- North Sector: Gate 1, Girls Hostel, Hospital, Hostels ---
-  { id: 'node_rd_g1_avenue', name: 'Gate 1 Campus Boulevard', position: [1226, 180] },
-  { id: 'node_rd_girls_approach', name: 'Girls Hostel Approach Road', position: [1306, 150] },
-  { id: 'node_rd_hosp_junc', name: 'Hospital North-West Junction', position: [1396, 245] },
-  { id: 'node_rd_north_avenue_mid', name: 'North Avenue East of Hospital', position: [1396, 340] },
-  { id: 'node_rd_sanga_approach', name: 'Sanga Hostel Approach Road', position: [1396, 420] },
-  { id: 'node_rd_kumba_approach', name: 'Kumba Hostel Approach Road', position: [1276, 380] },
-  { id: 'node_rd_north_south_spine', name: 'North-South Academic Spine (North)', position: [1176, 380] },
+  // --- Central Academic Sector: Mewar University, Museum, Bader, Mess ---
+  { id: 'node_univ_west_bend', name: 'University West Avenue Bend', position: [444.9, 146.1] },
+  { id: 'node_univ_west_ent', name: 'Mewar University West Entrance', position: [420.1, 178.4], isEntrance: true, buildingId: 'main_building' },
+  { id: 'node_univ_east_junc', name: 'Academic Spine East Junction', position: [402.1, 290.4] },
+  { id: 'node_bader_ent', name: 'Bader Hostel Entrance', position: [386.7, 347.6], isEntrance: true, buildingId: 'bader_hostel' },
+  { id: 'node_gandhi_north', name: 'Gandhi Museum North Walkway', position: [381.6, 174.2] },
+  { id: 'node_mess_west', name: 'Mess West Approach', position: [354.6, 287.6] },
+  { id: 'node_univ_south_ent', name: 'Mewar University South Entrance', position: [349.5, 275.5], isEntrance: true, buildingId: 'main_building' },
+  { id: 'node_mess_ent', name: 'Mess Main Entrance', position: [337.0, 296.6], isEntrance: true, buildingId: 'mess' },
+  { id: 'node_gandhi_ent', name: 'Gandhi Museum Main Entrance', position: [319.0, 186.3], isEntrance: true, buildingId: 'gandhi_museum' },
+  { id: 'node_law_ent', name: 'Law Block Entrance', position: [308.2, 356.6], isEntrance: true, buildingId: 'law_block' },
+  { id: 'node_central_spine_mid', name: 'Central Campus Spine', position: [287.6, 299.5] },
 
-  // --- Academic Core: Mewar University, Museum, Mess, Law ---
-  { id: 'node_rd_univ_west_drive', name: 'University West Concourse', position: [1096, 350] },
-  { id: 'node_rd_g2_concourse', name: 'Gate 2 Inbound Concourse', position: [876, 350] },
-  { id: 'node_rd_museum_approach', name: 'Gandhi Museum Concourse', position: [926, 350] },
-  { id: 'node_rd_central_crossroads', name: 'Central Campus Crossroads', position: [876, 460] },
-  { id: 'node_rd_mess_approach', name: 'Avenue at Mess Entrance', position: [866, 550] },
-  { id: 'node_rd_law_approach', name: 'Law Block Approach Walkway', position: [826, 680] },
-
-  // --- Sports Sector: Football, Cricket, Gym, Auditorium ---
-  { id: 'node_rd_fb_north', name: 'Football Ground North Perimeter', position: [796, 460] },
-  { id: 'node_rd_fb_west', name: 'Football Ground West Perimeter', position: [707, 400] },
-  { id: 'node_rd_fb_east', name: 'Football Ground East Perimeter', position: [707, 580] },
-  { id: 'node_rd_fb_south', name: 'Football Ground South Perimeter', position: [616, 500] },
-  { id: 'node_rd_cricket_north', name: 'Cricket Ground North Perimeter', position: [476, 540] },
-  { id: 'node_rd_cricket_west', name: 'Cricket Ground West Perimeter', position: [416, 460] },
-  { id: 'node_rd_cricket_east', name: 'Cricket Ground East Perimeter', position: [416, 700] },
-  { id: 'node_rd_gym_approach', name: 'Gymnasium Approach Walkway', position: [454, 730] },
-  { id: 'node_rd_aud_approach', name: 'Auditorium Approach Driveway', position: [240, 360] }
+  // --- Sports & South Sector: Football, Basketball, Cricket, Solar Block ---
+  { id: 'node_fb_ent', name: 'Football Ground Entrance', position: [311.1, 230.6], isEntrance: true, buildingId: 'football_ground' },
+  { id: 'node_bball_ent', name: 'Basketball Court Entrance', position: [253.6, 381.1], isEntrance: true, buildingId: 'basketball' },
+  { id: 'node_south_crossroads', name: 'South Campus Crossroads', position: [226.7, 319.5] },
+  { id: 'node_solar_east', name: 'Solar Block East Walkway', position: [179.8, 358.3] },
+  { id: 'node_solar_west', name: 'Solar Block West Pathway', position: [177.0, 340.9] },
+  { id: 'node_cricket_ent', name: 'Cricket Ground Entrance', position: [164.4, 248.1], isEntrance: true, buildingId: 'cricket_ground' }
 ];
 
 export const DEFAULT_SATELLITE_PATH_EDGES: SatellitePathEdge[] = [
-  // --- West Perimeter Highway ---
-  { id: 'e_hwy_n_g1', source: 'node_hwy_n', target: 'node_hwy_g1', distanceMeters: 95, isAccessible: true, description: 'West Highway North towards Gate 1' },
-  { id: 'e_hwy_g1_mid', source: 'node_hwy_g1', target: 'node_hwy_mid', distanceMeters: 100, isAccessible: true, description: 'West Highway between Gate 1 and Gate 2' },
-  { id: 'e_hwy_mid_g2', source: 'node_hwy_mid', target: 'node_hwy_g2', distanceMeters: 92, isAccessible: true, description: 'West Highway approaching Gate 2' },
-  { id: 'e_hwy_g2_fb', source: 'node_hwy_g2', target: 'node_hwy_fb', distanceMeters: 70, isAccessible: true, description: 'West Highway beside Football Ground' },
-  { id: 'e_hwy_fb_cricket', source: 'node_hwy_fb', target: 'node_hwy_cricket', distanceMeters: 125, isAccessible: true, description: 'West Highway beside Cricket Ground' },
-  { id: 'e_hwy_cricket_s', source: 'node_hwy_cricket', target: 'node_hwy_s', distanceMeters: 110, isAccessible: true, description: 'West Highway Southern stretch' },
+  // --- North & Sanga Hostel Edges ---
+  { id: 'e_sanga_nw_n', source: 'node_sanga_nw', target: 'node_sanga_north', distanceMeters: 18, isAccessible: true, description: 'North-West corner to Sanga North approach' },
+  { id: 'e_sanga_n_w', source: 'node_sanga_north', target: 'node_sanga_west', distanceMeters: 36, isAccessible: true, description: 'Sanga North to Sanga West lane' },
+  { id: 'e_sanga_w_cross', source: 'node_sanga_west', target: 'node_nw_cross', distanceMeters: 38, isAccessible: true, description: 'Sanga West to North-West cross path' },
+  { id: 'e_sanga_nw_west_up', source: 'node_sanga_nw', target: 'node_west_upper', distanceMeters: 62, isAccessible: true, description: 'North-West corner along perimeter drive' },
+  { id: 'e_west_up_gate', source: 'node_west_upper', target: 'node_west_gate_junc', distanceMeters: 25, isAccessible: true, description: 'Perimeter drive approaching Gate 1' },
+  { id: 'e_sanga_ent_east', source: 'node_sanga_ent', target: 'node_sanga_east', distanceMeters: 22, isAccessible: true, description: 'Sanga Hostel entrance to East lane' },
+  { id: 'e_sanga_ent_junc', source: 'node_sanga_ent', target: 'node_sanga_kumba_junc', distanceMeters: 36, isAccessible: true, description: 'Sanga entrance to Sanga-Kumbha junction' },
+  { id: 'e_junc_kumba_n', source: 'node_sanga_kumba_junc', target: 'node_kumba_north', distanceMeters: 33, isAccessible: true, description: 'Junction to Kumbha north lane' },
+  { id: 'e_junc_kumba_mid', source: 'node_sanga_kumba_junc', target: 'node_kumba_mid', distanceMeters: 18, isAccessible: true, description: 'Junction to Kumbha approach spine' },
+  { id: 'e_kumba_mid_cross', source: 'node_kumba_mid', target: 'node_nw_cross', distanceMeters: 36, isAccessible: true, description: 'Crossway between Kumbha and west lane' },
+  { id: 'e_kumba_mid_ent', source: 'node_kumba_mid', target: 'node_kumba_ent', distanceMeters: 53, isAccessible: true, description: 'Spine to Kumbha Hostel entrance' },
+  { id: 'e_kumba_n_ent', source: 'node_kumba_north', target: 'node_kumba_ent', distanceMeters: 30, isAccessible: true, description: 'North lane to Kumbha Hostel entrance' },
 
-  // --- Gate 1 & North Sector Walkways ---
-  { id: 'e_hwy_g1_turn', source: 'node_hwy_g1', target: 'node_gate_1', distanceMeters: 29, isAccessible: true, description: 'Turn into Gate No. 1' },
-  { id: 'e_g1_avenue', source: 'node_gate_1', target: 'node_rd_g1_avenue', distanceMeters: 20, isAccessible: true, description: 'Gate 1 Entrance Portal' },
-  { id: 'e_g1_girls', source: 'node_rd_g1_avenue', target: 'node_rd_girls_approach', distanceMeters: 38, isAccessible: true, description: 'Boulevard towards Girls Hostel' },
-  { id: 'e_girls_ent', source: 'node_rd_girls_approach', target: 'node_ent_girls', distanceMeters: 18, isAccessible: true, description: 'Girls Hostel Entrance Walkway' },
-  { id: 'e_girls_hosp', source: 'node_rd_girls_approach', target: 'node_rd_hosp_junc', distanceMeters: 59, isAccessible: true, description: 'Paved Road from Girls Hostel to Hospital' },
-  { id: 'e_hosp_ent', source: 'node_rd_hosp_junc', target: 'node_ent_hospital', distanceMeters: 5, isAccessible: true, description: 'Hospital Entrance Drive' },
-  { id: 'e_guesthouse_ent', source: 'node_rd_g1_avenue', target: 'node_ent_guest_house', distanceMeters: 42, isAccessible: true, description: 'Walkway to Guest House' },
-  { id: 'e_hosp_north_mid', source: 'node_rd_hosp_junc', target: 'node_rd_north_avenue_mid', distanceMeters: 43, isAccessible: true, description: 'Avenue heading east towards Hostels' },
-  { id: 'e_mid_sanga', source: 'node_rd_north_avenue_mid', target: 'node_rd_sanga_approach', distanceMeters: 36, isAccessible: true, description: 'Road leading to Sanga Hostel' },
-  { id: 'e_sanga_ent', source: 'node_rd_sanga_approach', target: 'node_ent_sanga', distanceMeters: 20, isAccessible: true, description: 'Sanga Hostel Entrance Walkway' },
-  { id: 'e_sanga_kumba', source: 'node_rd_sanga_approach', target: 'node_rd_kumba_approach', distanceMeters: 57, isAccessible: true, description: 'Connecting Road between Hostels' },
-  { id: 'e_kumba_ent', source: 'node_rd_kumba_approach', target: 'node_ent_kumba', distanceMeters: 28, isAccessible: true, description: 'Kumba Hostel Entrance Walkway' },
-  { id: 'e_kumba_spine', source: 'node_rd_kumba_approach', target: 'node_rd_north_south_spine', distanceMeters: 45, isAccessible: true, description: 'Walkway heading south towards University' },
+  // --- West & Central Academic Edges ---
+  { id: 'e_gate_univ_bend', source: 'node_west_gate_junc', target: 'node_univ_west_bend', distanceMeters: 52, isAccessible: true, description: 'Gate 1 to University West avenue' },
+  { id: 'e_univ_bend_ent', source: 'node_univ_west_bend', target: 'node_univ_west_ent', distanceMeters: 35, isAccessible: true, description: 'West avenue to University West entrance' },
+  { id: 'e_univ_ent_gandhi_n', source: 'node_univ_west_ent', target: 'node_gandhi_north', distanceMeters: 33, isAccessible: true, description: 'West entrance towards Gandhi Museum' },
+  { id: 'e_gandhi_n_ent', source: 'node_gandhi_north', target: 'node_gandhi_ent', distanceMeters: 54, isAccessible: true, description: 'North walkway to Gandhi Museum entrance' },
+  { id: 'e_kumba_univ_east', source: 'node_kumba_ent', target: 'node_univ_east_junc', distanceMeters: 92, isAccessible: true, description: 'Kumbha southwards to Academic east spine' },
+  { id: 'e_univ_east_bader', source: 'node_univ_east_junc', target: 'node_bader_ent', distanceMeters: 50, isAccessible: true, description: 'Academic spine to Bader Hostel entrance' },
+  { id: 'e_univ_east_mess_w', source: 'node_univ_east_junc', target: 'node_mess_west', distanceMeters: 41, isAccessible: true, description: 'Academic spine towards Mess west approach' },
+  { id: 'e_mess_w_univ_s', source: 'node_mess_west', target: 'node_univ_south_ent', distanceMeters: 11, isAccessible: true, description: 'Mess approach to University south entrance' },
+  { id: 'e_mess_w_ent', source: 'node_mess_west', target: 'node_mess_ent', distanceMeters: 17, isAccessible: true, description: 'West approach to Mess entrance' },
+  { id: 'e_bader_law', source: 'node_bader_ent', target: 'node_law_ent', distanceMeters: 67, isAccessible: true, description: 'Bader Hostel avenue to Law Block' },
+  { id: 'e_gandhi_fb', source: 'node_gandhi_ent', target: 'node_fb_ent', distanceMeters: 38, isAccessible: true, description: 'Gandhi Museum to Football Ground' },
+  { id: 'e_gandhi_univ_s', source: 'node_gandhi_ent', target: 'node_univ_south_ent', distanceMeters: 80, isAccessible: true, description: 'Gandhi Museum concourse to University south' },
+  { id: 'e_univ_s_central_mid', source: 'node_univ_south_ent', target: 'node_central_spine_mid', distanceMeters: 57, isAccessible: true, description: 'University south to Central spine' },
+  { id: 'e_mess_central_mid', source: 'node_mess_ent', target: 'node_central_spine_mid', distanceMeters: 43, isAccessible: true, description: 'Mess entrance to Central spine' },
 
-  // --- University & Academic Core ---
-  { id: 'e_spine_univ', source: 'node_rd_north_south_spine', target: 'node_rd_univ_west_drive', distanceMeters: 39, isAccessible: true, description: 'Spine Avenue along University facade' },
-  { id: 'e_univ_ent', source: 'node_rd_univ_west_drive', target: 'node_ent_mewar', distanceMeters: 36, isAccessible: true, description: 'Mewar University Main Entrance Ramp' },
-  { id: 'e_univ_museum', source: 'node_rd_univ_west_drive', target: 'node_rd_museum_approach', distanceMeters: 77, isAccessible: true, description: 'Boulevard towards Gandhi Museum' },
-  { id: 'e_museum_ent', source: 'node_rd_museum_approach', target: 'node_ent_gandhi', distanceMeters: 14, isAccessible: true, description: 'Gandhi Museum Entrance Walkway' },
-  { id: 'e_museum_g2', source: 'node_rd_museum_approach', target: 'node_rd_g2_concourse', distanceMeters: 23, isAccessible: true, description: 'Avenue towards Gate 2' },
-  { id: 'e_g2_ent', source: 'node_gate_2', target: 'node_rd_g2_concourse', distanceMeters: 28, isAccessible: true, description: 'Gate No. 2 Entry Portal' },
-  { id: 'e_hwy_g2_turn', source: 'node_hwy_g2', target: 'node_gate_2', distanceMeters: 54, isAccessible: true, description: 'Turn from Highway into Gate 2' },
-  { id: 'e_g2_crossroads', source: 'node_rd_g2_concourse', target: 'node_rd_central_crossroads', distanceMeters: 50, isAccessible: true, description: 'Boulevard towards Central Crossroads' },
-  { id: 'e_crossroads_mess', source: 'node_rd_central_crossroads', target: 'node_rd_mess_approach', distanceMeters: 41, isAccessible: true, description: 'Avenue towards Mess and Law Block' },
-  { id: 'e_mess_ent', source: 'node_rd_mess_approach', target: 'node_ent_mess', distanceMeters: 32, isAccessible: true, description: 'Mess Main Entrance Walkway' },
-  { id: 'e_mess_law', source: 'node_rd_mess_approach', target: 'node_rd_law_approach', distanceMeters: 61, isAccessible: true, description: 'Paved Avenue to Law Block' },
-  { id: 'e_law_ent', source: 'node_rd_law_approach', target: 'node_ent_law', distanceMeters: 35, isAccessible: true, description: 'Law Block Entrance Ramp' },
-
-  // --- Sports & South Campus Walkways ---
-  { id: 'e_crossroads_fb_n', source: 'node_rd_central_crossroads', target: 'node_rd_fb_north', distanceMeters: 36, isAccessible: true, description: 'Road towards Football Ground' },
-  { id: 'e_fb_n_w', source: 'node_rd_fb_north', target: 'node_rd_fb_west', distanceMeters: 48, isAccessible: true, description: 'Football Ground West Promenade' },
-  { id: 'e_fb_n_e', source: 'node_rd_fb_north', target: 'node_rd_fb_east', distanceMeters: 67, isAccessible: true, description: 'Football Ground East Promenade' },
-  { id: 'e_fb_w_ent', source: 'node_rd_fb_west', target: 'node_ent_fb', distanceMeters: 40, isAccessible: true, description: 'Football Ground Pavilion Entrance' },
-  { id: 'e_fb_w_s', source: 'node_rd_fb_west', target: 'node_rd_fb_south', distanceMeters: 61, isAccessible: true, description: 'Football Ground South-West Perimeter' },
-  { id: 'e_fb_e_s', source: 'node_rd_fb_east', target: 'node_rd_fb_south', distanceMeters: 55, isAccessible: true, description: 'Football Ground South-East Perimeter' },
-  { id: 'e_fb_cricket', source: 'node_rd_fb_south', target: 'node_rd_cricket_north', distanceMeters: 66, isAccessible: true, description: 'Connecting Avenue towards Cricket Ground' },
-  { id: 'e_cricket_ent', source: 'node_rd_cricket_north', target: 'node_ent_cricket', distanceMeters: 33, isAccessible: true, description: 'Cricket Ground Pavilion Entrance' },
-  { id: 'e_cricket_n_w', source: 'node_rd_cricket_north', target: 'node_rd_cricket_west', distanceMeters: 45, isAccessible: true, description: 'Cricket Ground West Perimeter' },
-  { id: 'e_cricket_n_e', source: 'node_rd_cricket_north', target: 'node_rd_cricket_east', distanceMeters: 77, isAccessible: true, description: 'Cricket Ground East Perimeter' },
-  { id: 'e_cricket_w_hwy', source: 'node_rd_cricket_west', target: 'node_hwy_cricket', distanceMeters: 45, isAccessible: true, description: 'Exit from Cricket Ground to West Highway' },
-  { id: 'e_cricket_e_gym', source: 'node_rd_cricket_east', target: 'node_rd_gym_approach', distanceMeters: 23, isAccessible: true, description: 'Avenue heading to Gymnasium' },
-  { id: 'e_gym_ent', source: 'node_rd_gym_approach', target: 'node_ent_gym', distanceMeters: 30, isAccessible: true, description: 'Gym Entrance Ramp' },
-  { id: 'e_hwy_s_aud', source: 'node_hwy_s', target: 'node_rd_aud_approach', distanceMeters: 43, isAccessible: true, description: 'Avenue to Auditorium' },
-  { id: 'e_aud_ent', source: 'node_rd_aud_approach', target: 'node_ent_auditorium', distanceMeters: 45, isAccessible: true, description: 'Auditorium Entrance' }
+  // --- Sports & South Campus Edges ---
+  { id: 'e_fb_south_cross', source: 'node_fb_ent', target: 'node_south_crossroads', distanceMeters: 105, isAccessible: true, description: 'Football Ground to South crossroads' },
+  { id: 'e_central_mid_south_cross', source: 'node_central_spine_mid', target: 'node_south_crossroads', distanceMeters: 54, isAccessible: true, description: 'Central spine to South crossroads' },
+  { id: 'e_south_cross_bball', source: 'node_south_crossroads', target: 'node_bball_ent', distanceMeters: 58, isAccessible: true, description: 'Crossroads to Basketball Court' },
+  { id: 'e_south_cross_cricket', source: 'node_south_crossroads', target: 'node_cricket_ent', distanceMeters: 82, isAccessible: true, description: 'Crossroads to Cricket Ground' },
+  { id: 'e_south_cross_solar_w', source: 'node_south_crossroads', target: 'node_solar_west', distanceMeters: 46, isAccessible: true, description: 'Crossroads towards Solar array block' },
+  { id: 'e_solar_w_solar_e', source: 'node_solar_west', target: 'node_solar_east', distanceMeters: 15, isAccessible: true, description: 'Solar array walkway perimeter' }
 ];
 
 export const SATELLITE_PATH_NODES: SatellitePathNode[] = DEFAULT_SATELLITE_PATH_NODES;
 export const SATELLITE_PATH_EDGES: SatellitePathEdge[] = DEFAULT_SATELLITE_PATH_EDGES;
 
-// Storage keys for custom network edits
-export const NETWORK_STORAGE_KEY_NODES = 'accesspath_network_nodes_v2';
-export const NETWORK_STORAGE_KEY_EDGES = 'accesspath_network_edges_v2';
+// Storage keys for custom network edits (v3 calibrated)
+export const NETWORK_STORAGE_KEY_NODES = 'accesspath_network_nodes_v3';
+export const NETWORK_STORAGE_KEY_EDGES = 'accesspath_network_edges_v3';
 
 export function loadSatellitePathNetwork(): { nodes: SatellitePathNode[]; edges: SatellitePathEdge[] } {
   try {
@@ -490,8 +425,8 @@ export function resetSatellitePathNetwork(): { nodes: SatellitePathNode[]; edges
   return { nodes: DEFAULT_SATELLITE_PATH_NODES, edges: DEFAULT_SATELLITE_PATH_EDGES };
 }
 
-// Storage keys for custom satellite location edits
-export const SATELLITE_LOCATIONS_STORAGE_KEY = 'accesspath_satellite_locations_v2';
+// Storage keys for custom satellite location edits (v3 calibrated)
+export const SATELLITE_LOCATIONS_STORAGE_KEY = 'accesspath_satellite_locations_v3';
 
 export function loadSatelliteLocations(): SatelliteLocation[] {
   try {
@@ -567,4 +502,3 @@ export async function fetchBackendSatelliteLocations(): Promise<SatelliteLocatio
   }
   return null;
 }
-
